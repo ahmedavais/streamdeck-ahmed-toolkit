@@ -108,6 +108,17 @@ test("a nulled client fails with a configured network error", async () => {
 	});
 });
 
+test("tracks the requests it sends", async () => {
+	const client = HttpClient.createNull();
+	const requests = client.trackRequests();
+
+	await client.request({ url: "https://api.example/v1", method: "POST", headers: { authorization: "Bearer token" }, body: "{}" });
+
+	assert.deepEqual(requests.data, [
+		{ url: "https://api.example/v1", method: "POST", headers: { authorization: "Bearer token" }, body: "{}" },
+	]);
+});
+
 async function closedPort(): Promise<number> {
 	const server = http.createServer();
 	await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));

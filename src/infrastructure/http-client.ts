@@ -1,4 +1,5 @@
 import { ConfigurableResponses } from "./configurable-responses";
+import { OutputListener, type OutputTracker } from "./output-listener";
 
 export type HttpRequest = {
 	url: string;
@@ -26,17 +27,30 @@ export class HttpClient {
 		return new HttpClient(stubbedFetch(ConfigurableResponses.create(responses, "nulled HttpClient")));
 	}
 
+	private readonly requests = new OutputListener<HttpRequest>();
+
 	constructor(private readonly fetch: Fetch) {}
 
-	async request({ url, method, headers, body }: HttpRequest): Promise<HttpResponse> {
-		const response = await this.fetch(url, { method, headers, body }).catch((failure: Error) => {
-			throw new Error(`${method} ${url} failed: ${reasonFor(failure)}`, { cause: failure });
-		});
+	trackRequests(): OutputTracker<HttpRequest> {
+		return this.requests.trackOutput();
+	}
+
+	async request(request: HttpRequest): Promise<HttpResponse> {
+		this.requests.emit(request);
+		const response = await this.send(request);
 		return {
 			status: response.status,
 			headers: Object.fromEntries(response.headers.entries()),
 			body: await response.text(),
 		};
+	}
+
+	private async send({ url, method, headers, body }: HttpRequest): Promise<Response> {
+		try {
+			return await this.fetch(url, { method, headers, body });
+		} catch (failure) {
+			throw new Error(`${method} ${url} failed: ${reasonFor(failure as Error)}`, { cause: failure });
+		}
 	}
 }
 
