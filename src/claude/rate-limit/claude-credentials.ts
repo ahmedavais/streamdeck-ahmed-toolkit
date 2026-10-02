@@ -5,6 +5,10 @@ export type NulledCredentials = { accessToken: string } | { missing: true };
 const KEYCHAIN_SERVICE = "Claude Code-credentials";
 
 export class ClaudeCredentials {
+	static create(): ClaudeCredentials {
+		return new ClaudeCredentials(Keychain.create());
+	}
+
 	static createNull(credentials: NulledCredentials | NulledCredentials[] = { accessToken: "Nulled ClaudeCredentials access token" }): ClaudeCredentials {
 		const keychainItems = Array.isArray(credentials) ? credentials.map(keychainEntryFor) : keychainEntryFor(credentials);
 		return new ClaudeCredentials(Keychain.createNull(keychainItems));
