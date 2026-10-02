@@ -1,0 +1,8 @@
+node_modules/
+com.ahmedavais.claude-status.sdPlugin/bin/
+com.ahmedavais.claude-status.sdPlugin/logs/
+playground/
+graphify-out/
+.claude/settings.local.json
+.idea/
+dist/

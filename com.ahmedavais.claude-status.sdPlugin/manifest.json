@@ -1,0 +1,71 @@
+{
+	"Name": "Claude Status",
+	"Version": "0.2.0.0",
+	"Author": "Ahmed Avais",
+	"Actions": [
+		{
+			"Name": "Usage Gauge",
+			"UUID": "com.ahmedavais.claude-status.usage-gauge",
+			"Icon": "imgs/actions/usage-gauge/icon",
+			"Tooltip": "Shows Claude Code rate-limit utilization.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/usage-gauge/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Active Task",
+			"UUID": "com.ahmedavais.claude-status.active-task",
+			"Icon": "imgs/actions/active-task/icon",
+			"Tooltip": "Shows elapsed time for your longest-running Claude Code session.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/active-task/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "MCP Status",
+			"UUID": "com.ahmedavais.claude-status.mcp-status",
+			"Icon": "imgs/actions/mcp-status/icon",
+			"Tooltip": "Shows MCP server health. Press to re-check now.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/mcp-status/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "Claude Status",
+	"CategoryIcon": "imgs/plugin/category",
+	"CodePath": "bin/plugin.js",
+	"Description": "Shows live Claude Code usage on your Stream Deck.",
+	"Icon": "imgs/plugin/plugin",
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.5"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.15"
+		}
+	],
+	"Nodejs": {
+		"Version": "20"
+	},
+	"UUID": "com.ahmedavais.claude-status"
+}
