@@ -37,6 +37,12 @@ test("reads the Keychain again after the token is forgotten", () => {
 	assert.equal(reads.data.length, 2);
 });
 
+test("fails clearly when the Keychain entry isn't JSON", () => {
+	const credentials = new ClaudeCredentials(Keychain.createNull({ password: "not json" }));
+
+	assert.throws(() => credentials.accessToken(), { message: "Claude Code's Keychain entry holds no access token" });
+});
+
 function credentialsHolding(accessToken: string): string {
 	return JSON.stringify({ claudeAiOauth: { accessToken, refreshToken: "irrelevant refresh token" } });
 }

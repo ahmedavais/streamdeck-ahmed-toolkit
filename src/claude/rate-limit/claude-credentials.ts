@@ -17,7 +17,12 @@ export class ClaudeCredentials {
 	}
 
 	private readTokenFromKeychain(): string {
-		const { claudeAiOauth } = JSON.parse(this.keychain.readPassword(KEYCHAIN_SERVICE)) as { claudeAiOauth: { accessToken: string } };
-		return claudeAiOauth.accessToken;
+		const entry = this.keychain.readPassword(KEYCHAIN_SERVICE);
+		try {
+			const { claudeAiOauth } = JSON.parse(entry) as { claudeAiOauth: { accessToken: string } };
+			return claudeAiOauth.accessToken;
+		} catch (failure) {
+			throw new Error("Claude Code's Keychain entry holds no access token", { cause: failure });
+		}
 	}
 }
