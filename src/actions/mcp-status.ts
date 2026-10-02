@@ -22,7 +22,7 @@ const COLOR_BY_SEVERITY: Record<Severity, string> = {
 	unknown: "#3a3a42",
 };
 
-@action({ UUID: "com.ahmedavais.claude-status.mcp-status" })
+@action({ UUID: "com.ahmedavais.toolkit.claude.mcp-status" })
 export class McpStatus extends SingletonAction {
 	private timer: NodeJS.Timeout | undefined;
 	private probeInFlight = false;

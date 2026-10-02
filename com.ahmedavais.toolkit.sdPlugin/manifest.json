@@ -1,11 +1,11 @@
 {
-	"Name": "Claude Status",
+	"Name": "Ahmed's Toolkit",
 	"Version": "0.2.0.0",
 	"Author": "Ahmed Avais",
 	"Actions": [
 		{
 			"Name": "Usage Gauge",
-			"UUID": "com.ahmedavais.claude-status.usage-gauge",
+			"UUID": "com.ahmedavais.toolkit.claude.usage-gauge",
 			"Icon": "imgs/actions/usage-gauge/icon",
 			"Tooltip": "Shows Claude Code rate-limit utilization.",
 			"Controllers": [
@@ -20,7 +20,7 @@
 		},
 		{
 			"Name": "Active Task",
-			"UUID": "com.ahmedavais.claude-status.active-task",
+			"UUID": "com.ahmedavais.toolkit.claude.active-task",
 			"Icon": "imgs/actions/active-task/icon",
 			"Tooltip": "Shows elapsed time for your longest-running Claude Code session.",
 			"Controllers": [
@@ -35,7 +35,7 @@
 		},
 		{
 			"Name": "MCP Status",
-			"UUID": "com.ahmedavais.claude-status.mcp-status",
+			"UUID": "com.ahmedavais.toolkit.claude.mcp-status",
 			"Icon": "imgs/actions/mcp-status/icon",
 			"Tooltip": "Shows MCP server health. Press to re-check now.",
 			"Controllers": [
@@ -49,10 +49,10 @@
 			]
 		}
 	],
-	"Category": "Claude Status",
+	"Category": "Ahmed's Toolkit",
 	"CategoryIcon": "imgs/plugin/category",
 	"CodePath": "bin/plugin.js",
-	"Description": "Shows live Claude Code usage on your Stream Deck.",
+	"Description": "Ahmed's custom Stream Deck actions, including live Claude Code status.",
 	"Icon": "imgs/plugin/plugin",
 	"SDKVersion": 2,
 	"Software": {
@@ -67,5 +67,5 @@
 	"Nodejs": {
 		"Version": "20"
 	},
-	"UUID": "com.ahmedavais.claude-status"
+	"UUID": "com.ahmedavais.toolkit"
 }

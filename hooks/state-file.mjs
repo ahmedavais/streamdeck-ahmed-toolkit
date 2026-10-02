@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-export const STATE_DIR = path.join(os.homedir(), ".streamdeck-claude-status");
+export const STATE_DIR = path.join(os.homedir(), ".streamdeck-ahmed-toolkit");
 export const STATE_FILE = path.join(STATE_DIR, "session-turns.json");
 
 export function readState() {

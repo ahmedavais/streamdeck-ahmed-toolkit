@@ -1,10 +1,10 @@
 {
-	"name": "streamdeck-claude-status",
+	"name": "streamdeck-ahmed-toolkit",
 	"version": "0.2.0",
 	"private": true,
 	"scripts": {
 		"build": "rollup -c",
-		"watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.ahmedavais.claude-status\"",
+		"watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.ahmedavais.toolkit\"",
 		"test": "tsx --test src/**/*.test.ts"
 	},
 	"type": "module",

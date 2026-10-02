@@ -1,6 +1,6 @@
 node_modules/
-com.ahmedavais.claude-status.sdPlugin/bin/
-com.ahmedavais.claude-status.sdPlugin/logs/
+com.ahmedavais.toolkit.sdPlugin/bin/
+com.ahmedavais.toolkit.sdPlugin/logs/
 playground/
 graphify-out/
 .claude/settings.local.json

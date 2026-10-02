@@ -6,7 +6,7 @@ import path from "node:path";
 import url from "node:url";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "com.ahmedavais.claude-status.sdPlugin";
+const sdPlugin = "com.ahmedavais.toolkit.sdPlugin";
 
 /**
  * @type {import('rollup').RollupOptions}

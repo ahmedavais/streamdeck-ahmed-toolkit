@@ -8,7 +8,7 @@ const TICK_INTERVAL_MS = 1_000;
 const IDLE_COLOR = "#3a3a42";
 const WORKING_COLOR = "#2f6fed";
 
-@action({ UUID: "com.ahmedavais.claude-status.active-task" })
+@action({ UUID: "com.ahmedavais.toolkit.claude.active-task" })
 export class ActiveTask extends SingletonAction {
 	private timer: NodeJS.Timeout | undefined;
 

@@ -4,7 +4,7 @@ import { fetchRateLimitSnapshot } from "../rate-limit/rate-limit-client";
 
 const POLL_INTERVAL_MS = 60 * 1000;
 
-@action({ UUID: "com.ahmedavais.claude-status.usage-gauge" })
+@action({ UUID: "com.ahmedavais.toolkit.claude.usage-gauge" })
 export class UsageGauge extends SingletonAction {
 	private timer: NodeJS.Timeout | undefined;
 
