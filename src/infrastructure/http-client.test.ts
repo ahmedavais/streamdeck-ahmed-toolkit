@@ -45,6 +45,31 @@ test("returns the real server's response", async () => {
 	);
 });
 
+test("fails with the address when the server is unreachable", async () => {
+	const client = HttpClient.create();
+	const port = await closedPort();
+
+	await assert.rejects(client.request({ url: `http://127.0.0.1:${port}/v1/probe`, method: "GET", headers: {} }), {
+		message: `GET http://127.0.0.1:${port}/v1/probe failed: connect ECONNREFUSED 127.0.0.1:${port}`,
+	});
+});
+
+test("fails with the library's reason when it refuses the request", async () => {
+	const client = HttpClient.create();
+
+	await assert.rejects(client.request({ url: spyServer.url(), method: "GET", headers: {}, body: "not allowed" }), {
+		message: `GET ${spyServer.url()} failed: Request with GET/HEAD method cannot have body.`,
+	});
+});
+
+async function closedPort(): Promise<number> {
+	const server = http.createServer();
+	await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+	const { port } = server.address() as AddressInfo;
+	await new Promise<void>((resolve) => server.close(() => resolve()));
+	return port;
+}
+
 function createSpyServer() {
 	let lastRequest: SeenRequest | null = null;
 	let nextResponse = UNSPECIFIED_RESPONSE;
