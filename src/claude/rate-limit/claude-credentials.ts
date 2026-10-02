@@ -12,6 +12,10 @@ export class ClaudeCredentials {
 		return this.rememberedToken;
 	}
 
+	forgetToken(): void {
+		this.rememberedToken = undefined;
+	}
+
 	private readTokenFromKeychain(): string {
 		const { claudeAiOauth } = JSON.parse(this.keychain.readPassword(KEYCHAIN_SERVICE)) as { claudeAiOauth: { accessToken: string } };
 		return claudeAiOauth.accessToken;

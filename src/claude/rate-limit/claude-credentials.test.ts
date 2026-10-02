@@ -25,6 +25,18 @@ test("reads the Keychain only once across calls", () => {
 	assert.equal(reads.data.length, 1);
 });
 
+test("reads the Keychain again after the token is forgotten", () => {
+	const keychain = Keychain.createNull({ password: credentialsHolding("token-123") });
+	const reads = keychain.trackReads();
+	const credentials = new ClaudeCredentials(keychain);
+	credentials.accessToken();
+
+	credentials.forgetToken();
+	credentials.accessToken();
+
+	assert.equal(reads.data.length, 2);
+});
+
 function credentialsHolding(accessToken: string): string {
 	return JSON.stringify({ claudeAiOauth: { accessToken, refreshToken: "irrelevant refresh token" } });
 }
