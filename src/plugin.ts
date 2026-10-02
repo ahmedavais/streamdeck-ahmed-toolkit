@@ -1,7 +1,7 @@
 import streamDeck from "@elgato/streamdeck";
-import { ActiveTask } from "./actions/active-task";
-import { McpStatus } from "./actions/mcp-status";
-import { UsageGauge } from "./actions/usage-gauge";
+import { ActiveTask } from "./claude/actions/active-task";
+import { McpStatus } from "./claude/actions/mcp-status";
+import { UsageGauge } from "./claude/actions/usage-gauge";
 
 streamDeck.actions.registerAction(new UsageGauge());
 streamDeck.actions.registerAction(new ActiveTask());

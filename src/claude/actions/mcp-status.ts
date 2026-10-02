@@ -6,7 +6,7 @@ import streamDeck, {
 	WillAppearEvent,
 	WillDisappearEvent,
 } from "@elgato/streamdeck";
-import { renderStateImage } from "../key-image/state-image";
+import { renderStateImage } from "../../key-image/state-image";
 import { probeMcpServers } from "../mcp-status/mcp-status-probe";
 import type { ServerStatus } from "../mcp-status/server-status";
 import { summarizeServerStatuses, type Severity, type StatusSummary } from "../mcp-status/status-summary";

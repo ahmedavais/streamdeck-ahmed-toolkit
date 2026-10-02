@@ -1,6 +1,6 @@
 import { action, KeyAction, SingletonAction, WillAppearEvent, WillDisappearEvent } from "@elgato/streamdeck";
 import { formatElapsed } from "../active-task/elapsed";
-import { renderStateImage } from "../key-image/state-image";
+import { renderStateImage } from "../../key-image/state-image";
 import { chooseTurnToDisplay, elapsedOf, isInProgress } from "../active-task/turn-state";
 import { readTurnState } from "../active-task/turn-store";
 
