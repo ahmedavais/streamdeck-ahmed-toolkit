@@ -62,6 +62,14 @@ test("fails with the library's reason when it refuses the request", async () => 
 	});
 });
 
+test("a nulled client doesn't touch the network", async () => {
+	const client = HttpClient.createNull();
+
+	await client.request({ url: spyServer.url(), method: "POST", headers: {}, body: "{}" });
+
+	assert.equal(spyServer.lastRequest(), null);
+});
+
 async function closedPort(): Promise<number> {
 	const server = http.createServer();
 	await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
