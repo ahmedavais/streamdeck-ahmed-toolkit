@@ -1,3 +1,5 @@
+import { ConfigurableResponses } from "./configurable-responses";
+
 export type HttpRequest = {
 	url: string;
 	method: string;
@@ -18,8 +20,8 @@ export class HttpClient {
 		return new HttpClient(fetch);
 	}
 
-	static createNull(): HttpClient {
-		return new HttpClient(stubbedFetch);
+	static createNull(responses: HttpResponse | HttpResponse[] = DEFAULT_NULLED_RESPONSE): HttpClient {
+		return new HttpClient(stubbedFetch(ConfigurableResponses.create(responses, "nulled HttpClient")));
 	}
 
 	constructor(private readonly fetch: Fetch) {}
@@ -40,6 +42,15 @@ function reasonFor(failure: Error): string {
 	return failure.cause instanceof Error ? failure.cause.message : failure.message;
 }
 
-async function stubbedFetch(): Promise<Response> {
-	return new Response("Nulled HttpClient default body", { status: 503, headers: { nulledhttpclient: "default header" } });
+const DEFAULT_NULLED_RESPONSE: HttpResponse = {
+	status: 503,
+	headers: { nulledhttpclient: "default header" },
+	body: "Nulled HttpClient default body",
+};
+
+function stubbedFetch(responses: ConfigurableResponses<HttpResponse>): Fetch {
+	return async () => {
+		const { status, headers, body } = responses.next();
+		return new Response(body, { status, headers });
+	};
 }

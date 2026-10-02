@@ -82,6 +82,24 @@ test("a nulled client answers with an obviously fake default", async () => {
 	});
 });
 
+test("a nulled client answers with configured responses in order", async () => {
+	const client = HttpClient.createNull([
+		{ status: 401, headers: { "x-reason": "expired" }, body: "first" },
+		{ status: 200, headers: {}, body: "second" },
+	]);
+	const request = { url: "https://irrelevant.example", method: "GET", headers: {} };
+
+	const responses = [await client.request(request), await client.request(request)];
+
+	assert.deepEqual(
+		responses.map(({ status, headers, body }) => ({ status, reason: headers["x-reason"], body })),
+		[
+			{ status: 401, reason: "expired", body: "first" },
+			{ status: 200, reason: undefined, body: "second" },
+		],
+	);
+});
+
 async function closedPort(): Promise<number> {
 	const server = http.createServer();
 	await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
