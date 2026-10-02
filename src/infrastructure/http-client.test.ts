@@ -70,6 +70,18 @@ test("a nulled client doesn't touch the network", async () => {
 	assert.equal(spyServer.lastRequest(), null);
 });
 
+test("a nulled client answers with an obviously fake default", async () => {
+	const client = HttpClient.createNull();
+
+	const response = await client.request({ url: "https://irrelevant.example", method: "GET", headers: {} });
+
+	assert.deepEqual(response, {
+		status: 503,
+		headers: { "content-type": "text/plain;charset=UTF-8", nulledhttpclient: "default header" },
+		body: "Nulled HttpClient default body",
+	});
+});
+
 async function closedPort(): Promise<number> {
 	const server = http.createServer();
 	await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));

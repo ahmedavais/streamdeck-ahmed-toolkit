@@ -41,5 +41,5 @@ function reasonFor(failure: Error): string {
 }
 
 async function stubbedFetch(): Promise<Response> {
-	return new Response();
+	return new Response("Nulled HttpClient default body", { status: 503, headers: { nulledhttpclient: "default header" } });
 }
