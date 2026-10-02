@@ -23,12 +23,12 @@ export async function fetchRateLimitSnapshot(): Promise<RateLimitSnapshot | unde
 
 	if (response.status === 401) {
 		invalidateAccessToken();
-		streamDeck.logger.error("Claude Status: Keychain token rejected; will re-read on next poll.");
+		streamDeck.logger.error("Claude Code Keychain token rejected; will re-read on next poll.");
 		return undefined;
 	}
 
 	if (!response.ok) {
-		streamDeck.logger.error(`Claude Status: rate-limit probe failed with status ${response.status}`);
+		streamDeck.logger.error(`Claude Code rate-limit probe failed with status ${response.status}`);
 		return undefined;
 	}
 
