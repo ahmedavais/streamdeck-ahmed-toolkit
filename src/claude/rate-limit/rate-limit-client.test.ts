@@ -45,6 +45,20 @@ test("reports nothing and logs why when the network is unreachable", async () =>
 	]);
 });
 
+test("reports nothing, sends nothing, and logs why when Claude Code's credentials can't be read", async () => {
+	const { snapshot, httpRequests, logOutput } = await fetchSnapshot({ credentials: { missing: true } });
+
+	assert.equal(snapshot, undefined);
+	assert.deepEqual(httpRequests.data, [], "shouldn't probe without a token");
+	assert.deepEqual(logOutput.data, [
+		{
+			level: "error",
+			message:
+				'Claude Code rate-limit probe failed: Could not read "Claude Code-credentials" from the Keychain: security: SecKeychainSearchCopyNext: The specified item could not be found in the keychain.',
+		},
+	]);
+});
+
 async function fetchSnapshot({
 	credentials = { accessToken: "irrelevant token" } as NulledCredentials | NulledCredentials[],
 	httpResponses = IRRELEVANT_RESPONSE as NulledHttpResponse | NulledHttpResponse[],
