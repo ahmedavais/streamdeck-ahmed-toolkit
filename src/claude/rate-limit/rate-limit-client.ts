@@ -70,6 +70,12 @@ export class RateLimitClient {
 				messages: [{ role: "user", content: "." }],
 			}),
 		});
+		if (response.status === 401) {
+			this.credentials.forgetToken();
+			this.log.error("Claude Code Keychain token rejected; will re-read on next poll.");
+			return undefined;
+		}
+
 		return parseSnapshot(new Headers(response.headers));
 	}
 }

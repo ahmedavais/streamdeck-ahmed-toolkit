@@ -59,9 +59,25 @@ test("reports nothing, sends nothing, and logs why when Claude Code's credential
 	]);
 });
 
+test("reports nothing, logs why, and reads a fresh token when the token is rejected", async () => {
+	const { snapshots, httpRequests, logOutput } = await fetchSnapshot({
+		credentials: [{ accessToken: "expired" }, { accessToken: "fresh" }],
+		httpResponses: [{ status: 401, headers: {}, body: "{}" }, IRRELEVANT_RESPONSE],
+		probes: 2,
+	});
+
+	assert.equal(snapshots[0], undefined);
+	assert.deepEqual(logOutput.data, [{ level: "error", message: "Claude Code Keychain token rejected; will re-read on next poll." }]);
+	assert.deepEqual(
+		httpRequests.data.map(({ headers }) => headers.Authorization),
+		["Bearer expired", "Bearer fresh"],
+	);
+});
+
 async function fetchSnapshot({
 	credentials = { accessToken: "irrelevant token" } as NulledCredentials | NulledCredentials[],
 	httpResponses = IRRELEVANT_RESPONSE as NulledHttpResponse | NulledHttpResponse[],
+	probes = 1,
 } = {}) {
 	const http = HttpClient.createNull(httpResponses);
 	const httpRequests = http.trackRequests();
@@ -69,7 +85,8 @@ async function fetchSnapshot({
 	const logOutput = log.trackOutput();
 	const client = new RateLimitClient(http, ClaudeCredentials.createNull(credentials), log);
 
-	const snapshot = await client.fetchSnapshot();
+	const snapshots = [];
+	for (let probe = 0; probe < probes; probe++) snapshots.push(await client.fetchSnapshot());
 
-	return { snapshot, httpRequests, logOutput };
+	return { snapshot: snapshots.at(-1), snapshots, httpRequests, logOutput };
 }
