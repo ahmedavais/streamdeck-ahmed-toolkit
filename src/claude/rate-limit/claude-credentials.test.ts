@@ -65,6 +65,12 @@ test("a nulled instance answers with configured tokens in order", () => {
 	assert.deepEqual([first, second], ["old", "new"]);
 });
 
+test("a nulled instance can have no credentials", () => {
+	const credentials = ClaudeCredentials.createNull({ missing: true });
+
+	assert.throws(() => credentials.accessToken(), /Could not read "Claude Code-credentials" from the Keychain/);
+});
+
 function credentialsHolding(accessToken: string): string {
 	return JSON.stringify({ claudeAiOauth: { accessToken, refreshToken: "irrelevant refresh token" } });
 }

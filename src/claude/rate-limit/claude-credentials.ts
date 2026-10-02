@@ -1,6 +1,6 @@
 import { Keychain, type NulledKeychainItem } from "../../infrastructure/keychain";
 
-export type NulledCredentials = { accessToken: string };
+export type NulledCredentials = { accessToken: string } | { missing: true };
 
 const KEYCHAIN_SERVICE = "Claude Code-credentials";
 
@@ -38,6 +38,7 @@ function accessTokenIn(entry: string): unknown {
 	}
 }
 
-function keychainEntryFor({ accessToken }: NulledCredentials): NulledKeychainItem {
-	return { password: JSON.stringify({ claudeAiOauth: { accessToken } }) };
+function keychainEntryFor(credentials: NulledCredentials): NulledKeychainItem {
+	if ("missing" in credentials) return credentials;
+	return { password: JSON.stringify({ claudeAiOauth: { accessToken: credentials.accessToken } }) };
 }
