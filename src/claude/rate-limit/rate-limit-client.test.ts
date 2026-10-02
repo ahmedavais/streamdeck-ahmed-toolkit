@@ -33,6 +33,18 @@ test("reports the snapshot from the probe's rate-limit headers", async () => {
 	assert.deepEqual(snapshot, { usage: 0.42 });
 });
 
+test("reports nothing and logs why when the network is unreachable", async () => {
+	const { snapshot, logOutput } = await fetchSnapshot({ httpResponses: { networkError: "getaddrinfo ENOTFOUND api.anthropic.com" } });
+
+	assert.equal(snapshot, undefined);
+	assert.deepEqual(logOutput.data, [
+		{
+			level: "error",
+			message: "Claude Code rate-limit probe failed: POST https://api.anthropic.com/v1/messages failed: getaddrinfo ENOTFOUND api.anthropic.com",
+		},
+	]);
+});
+
 async function fetchSnapshot({
 	credentials = { accessToken: "irrelevant token" } as NulledCredentials | NulledCredentials[],
 	httpResponses = IRRELEVANT_RESPONSE as NulledHttpResponse | NulledHttpResponse[],

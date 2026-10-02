@@ -46,6 +46,15 @@ export class RateLimitClient {
 	) {}
 
 	async fetchSnapshot(): Promise<RateLimitSnapshot | undefined> {
+		try {
+			return await this.probe();
+		} catch (failure) {
+			this.log.error(`Claude Code rate-limit probe failed: ${(failure as Error).message}`);
+			return undefined;
+		}
+	}
+
+	private async probe(): Promise<RateLimitSnapshot | undefined> {
 		const response = await this.http.request({
 			url: API_URL,
 			method: "POST",
