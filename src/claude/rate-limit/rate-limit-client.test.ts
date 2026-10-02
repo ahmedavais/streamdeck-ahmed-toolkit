@@ -74,6 +74,15 @@ test("reports nothing, logs why, and reads a fresh token when the token is rejec
 	);
 });
 
+test("reports nothing and logs why when the probe fails with another status", async () => {
+	const { snapshot, logOutput } = await fetchSnapshot({
+		httpResponses: { status: 529, headers: { "anthropic-ratelimit-unified-7d-utilization": "0.42" }, body: "overloaded" },
+	});
+
+	assert.equal(snapshot, undefined);
+	assert.deepEqual(logOutput.data, [{ level: "error", message: "Claude Code rate-limit probe failed with status 529" }]);
+});
+
 async function fetchSnapshot({
 	credentials = { accessToken: "irrelevant token" } as NulledCredentials | NulledCredentials[],
 	httpResponses = IRRELEVANT_RESPONSE as NulledHttpResponse | NulledHttpResponse[],

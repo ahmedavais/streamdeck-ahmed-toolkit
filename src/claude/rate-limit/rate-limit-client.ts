@@ -76,6 +76,11 @@ export class RateLimitClient {
 			return undefined;
 		}
 
+		if (response.status < 200 || response.status >= 300) {
+			this.log.error(`Claude Code rate-limit probe failed with status ${response.status}`);
+			return undefined;
+		}
+
 		return parseSnapshot(new Headers(response.headers));
 	}
 }
