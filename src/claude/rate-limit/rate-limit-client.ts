@@ -46,7 +46,7 @@ export class RateLimitClient {
 	) {}
 
 	async fetchSnapshot(): Promise<RateLimitSnapshot | undefined> {
-		await this.http.request({
+		const response = await this.http.request({
 			url: API_URL,
 			method: "POST",
 			headers: {
@@ -61,6 +61,6 @@ export class RateLimitClient {
 				messages: [{ role: "user", content: "." }],
 			}),
 		});
-		return undefined;
+		return parseSnapshot(new Headers(response.headers));
 	}
 }

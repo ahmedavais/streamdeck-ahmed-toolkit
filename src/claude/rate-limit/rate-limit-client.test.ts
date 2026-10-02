@@ -25,6 +25,14 @@ test("sends a one-token Haiku probe authorized with the Claude Code token", asyn
 	]);
 });
 
+test("reports the snapshot from the probe's rate-limit headers", async () => {
+	const { snapshot } = await fetchSnapshot({
+		httpResponses: { status: 200, headers: { "anthropic-ratelimit-unified-7d-utilization": "0.42" }, body: "{}" },
+	});
+
+	assert.deepEqual(snapshot, { usage: 0.42 });
+});
+
 async function fetchSnapshot({
 	credentials = { accessToken: "irrelevant token" } as NulledCredentials | NulledCredentials[],
 	httpResponses = IRRELEVANT_RESPONSE as NulledHttpResponse | NulledHttpResponse[],
