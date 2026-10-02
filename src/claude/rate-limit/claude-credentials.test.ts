@@ -55,6 +55,16 @@ test("a nulled instance answers with an obviously fake default token", () => {
 	assert.equal(credentials.accessToken(), "Nulled ClaudeCredentials access token");
 });
 
+test("a nulled instance answers with configured tokens in order", () => {
+	const credentials = ClaudeCredentials.createNull([{ accessToken: "old" }, { accessToken: "new" }]);
+
+	const first = credentials.accessToken();
+	credentials.forgetToken();
+	const second = credentials.accessToken();
+
+	assert.deepEqual([first, second], ["old", "new"]);
+});
+
 function credentialsHolding(accessToken: string): string {
 	return JSON.stringify({ claudeAiOauth: { accessToken, refreshToken: "irrelevant refresh token" } });
 }

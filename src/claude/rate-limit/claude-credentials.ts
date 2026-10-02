@@ -1,10 +1,13 @@
-import { Keychain } from "../../infrastructure/keychain";
+import { Keychain, type NulledKeychainItem } from "../../infrastructure/keychain";
+
+export type NulledCredentials = { accessToken: string };
 
 const KEYCHAIN_SERVICE = "Claude Code-credentials";
 
 export class ClaudeCredentials {
-	static createNull(): ClaudeCredentials {
-		return new ClaudeCredentials(Keychain.createNull({ password: keychainEntryHolding("Nulled ClaudeCredentials access token") }));
+	static createNull(credentials: NulledCredentials | NulledCredentials[] = { accessToken: "Nulled ClaudeCredentials access token" }): ClaudeCredentials {
+		const keychainItems = Array.isArray(credentials) ? credentials.map(keychainEntryFor) : keychainEntryFor(credentials);
+		return new ClaudeCredentials(Keychain.createNull(keychainItems));
 	}
 
 	private rememberedToken: string | undefined;
@@ -35,6 +38,6 @@ function accessTokenIn(entry: string): unknown {
 	}
 }
 
-function keychainEntryHolding(accessToken: string): string {
-	return JSON.stringify({ claudeAiOauth: { accessToken } });
+function keychainEntryFor({ accessToken }: NulledCredentials): NulledKeychainItem {
+	return { password: JSON.stringify({ claudeAiOauth: { accessToken } }) };
 }
