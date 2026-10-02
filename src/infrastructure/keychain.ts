@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { ConfigurableResponses } from "./configurable-responses";
 import { OutputListener, type OutputTracker } from "./output-listener";
 
 export type NulledKeychainItem = { password: string } | { missing: true };
@@ -12,8 +13,8 @@ export class Keychain {
 		return new Keychain((command, args) => execFileSync(command, args, { encoding: "utf8", stdio: "pipe" }));
 	}
 
-	static createNull(item: NulledKeychainItem = { password: "Nulled Keychain default password" }): Keychain {
-		return new Keychain(stubbedSecurityCommand(item));
+	static createNull(items: NulledKeychainItem | NulledKeychainItem[] = { password: "Nulled Keychain default password" }): Keychain {
+		return new Keychain(stubbedSecurityCommand(ConfigurableResponses.create(items, "nulled Keychain")));
 	}
 
 	private readonly reads = new OutputListener<KeychainRead>();
@@ -36,8 +37,9 @@ export class Keychain {
 
 const ITEM_NOT_FOUND = "security: SecKeychainSearchCopyNext: The specified item could not be found in the keychain.\n";
 
-function stubbedSecurityCommand(item: NulledKeychainItem): RunCommand {
+function stubbedSecurityCommand(items: ConfigurableResponses<NulledKeychainItem>): RunCommand {
 	return () => {
+		const item = items.next();
 		if ("missing" in item) throw Object.assign(new Error("Command failed"), { stderr: ITEM_NOT_FOUND });
 		return `${item.password}\n`;
 	};

@@ -38,3 +38,10 @@ test("tracks which items it reads", () => {
 
 	assert.deepEqual(reads.data, [{ service: "Some Service" }]);
 });
+
+test("a nulled keychain answers configured items in order", () => {
+	const keychain = Keychain.createNull([{ password: "first" }, { missing: true }]);
+
+	assert.equal(keychain.readPassword("Some Service"), "first");
+	assert.throws(() => keychain.readPassword("Some Service"), /could not be found/);
+});
