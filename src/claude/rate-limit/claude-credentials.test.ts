@@ -43,6 +43,12 @@ test("fails clearly when the Keychain entry isn't JSON", () => {
 	assert.throws(() => credentials.accessToken(), { message: "Claude Code's Keychain entry holds no access token" });
 });
 
+test("fails clearly when the Keychain entry has no access token", () => {
+	const credentials = new ClaudeCredentials(Keychain.createNull({ password: JSON.stringify({ claudeAiOauth: {} }) }));
+
+	assert.throws(() => credentials.accessToken(), { message: "Claude Code's Keychain entry holds no access token" });
+});
+
 function credentialsHolding(accessToken: string): string {
 	return JSON.stringify({ claudeAiOauth: { accessToken, refreshToken: "irrelevant refresh token" } });
 }

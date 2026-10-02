@@ -17,12 +17,16 @@ export class ClaudeCredentials {
 	}
 
 	private readTokenFromKeychain(): string {
-		const entry = this.keychain.readPassword(KEYCHAIN_SERVICE);
-		try {
-			const { claudeAiOauth } = JSON.parse(entry) as { claudeAiOauth: { accessToken: string } };
-			return claudeAiOauth.accessToken;
-		} catch (failure) {
-			throw new Error("Claude Code's Keychain entry holds no access token", { cause: failure });
-		}
+		const token = accessTokenIn(this.keychain.readPassword(KEYCHAIN_SERVICE));
+		if (typeof token !== "string") throw new Error("Claude Code's Keychain entry holds no access token");
+		return token;
+	}
+}
+
+function accessTokenIn(entry: string): unknown {
+	try {
+		return JSON.parse(entry)?.claudeAiOauth?.accessToken;
+	} catch {
+		return undefined;
 	}
 }
