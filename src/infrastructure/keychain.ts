@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 
-export type NulledKeychainItem = { password: string };
+export type NulledKeychainItem = { password: string } | { missing: true };
 
 type RunCommand = (command: string, args: string[]) => string;
 
@@ -24,6 +24,11 @@ export class Keychain {
 	}
 }
 
-function stubbedSecurityCommand({ password }: NulledKeychainItem): RunCommand {
-	return () => `${password}\n`;
+const ITEM_NOT_FOUND = "security: SecKeychainSearchCopyNext: The specified item could not be found in the keychain.\n";
+
+function stubbedSecurityCommand(item: NulledKeychainItem): RunCommand {
+	return () => {
+		if ("missing" in item) throw Object.assign(new Error("Command failed"), { status: 44, stderr: ITEM_NOT_FOUND });
+		return `${item.password}\n`;
+	};
 }

@@ -21,3 +21,11 @@ test("a nulled keychain answers with a configured password", () => {
 
 	assert.equal(keychain.readPassword("any service"), "s3cret");
 });
+
+test("a nulled keychain fails for a configured missing item", () => {
+	const keychain = Keychain.createNull({ missing: true });
+
+	assert.throws(() => keychain.readPassword("Some Service"), {
+		message: 'Could not read "Some Service" from the Keychain: security: SecKeychainSearchCopyNext: The specified item could not be found in the keychain.',
+	});
+});
