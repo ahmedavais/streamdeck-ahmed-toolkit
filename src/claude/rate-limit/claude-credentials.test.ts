@@ -14,6 +14,17 @@ test("reads the access token from Claude Code's Keychain entry", () => {
 	assert.deepEqual(reads.data, [{ service: "Claude Code-credentials" }]);
 });
 
+test("reads the Keychain only once across calls", () => {
+	const keychain = Keychain.createNull({ password: credentialsHolding("token-123") });
+	const reads = keychain.trackReads();
+	const credentials = new ClaudeCredentials(keychain);
+
+	const tokens = [credentials.accessToken(), credentials.accessToken()];
+
+	assert.deepEqual(tokens, ["token-123", "token-123"]);
+	assert.equal(reads.data.length, 1);
+});
+
 function credentialsHolding(accessToken: string): string {
 	return JSON.stringify({ claudeAiOauth: { accessToken, refreshToken: "irrelevant refresh token" } });
 }
