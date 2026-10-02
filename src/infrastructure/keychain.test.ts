@@ -9,3 +9,15 @@ test("fails for an item that isn't in the keychain", () => {
 		message: 'Could not read "streamdeck-ahmed-toolkit-missing-item" from the Keychain: security: SecKeychainSearchCopyNext: The specified item could not be found in the keychain.',
 	});
 });
+
+test("a nulled keychain answers with an obviously fake default password", () => {
+	const keychain = Keychain.createNull();
+
+	assert.equal(keychain.readPassword("streamdeck-ahmed-toolkit-missing-item"), "Nulled Keychain default password");
+});
+
+test("a nulled keychain answers with a configured password", () => {
+	const keychain = Keychain.createNull({ password: "s3cret" });
+
+	assert.equal(keychain.readPassword("any service"), "s3cret");
+});
