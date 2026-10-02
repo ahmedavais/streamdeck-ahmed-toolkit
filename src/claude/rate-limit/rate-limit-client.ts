@@ -1,5 +1,5 @@
 import streamDeck from "@elgato/streamdeck";
-import type { HttpClient } from "../../infrastructure/http-client";
+import type { HttpClient, HttpRequest, HttpResponse } from "../../infrastructure/http-client";
 import type { Log } from "../../infrastructure/log";
 import type { ClaudeCredentials } from "./claude-credentials";
 import { getAccessToken, invalidateAccessToken } from "./keychain-token";
@@ -55,21 +55,11 @@ export class RateLimitClient {
 	}
 
 	private async probe(): Promise<RateLimitSnapshot | undefined> {
-		const response = await this.http.request({
-			url: API_URL,
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${this.credentials.accessToken()}`,
-				"anthropic-version": "2023-06-01",
-				"anthropic-beta": "oauth-2025-04-20",
-				"content-type": "application/json",
-			},
-			body: JSON.stringify({
-				model: PROBE_MODEL,
-				max_tokens: 1,
-				messages: [{ role: "user", content: "." }],
-			}),
-		});
+		const response = await this.http.request(probeRequestWith(this.credentials.accessToken()));
+		return this.snapshotFrom(response);
+	}
+
+	private snapshotFrom(response: HttpResponse): RateLimitSnapshot | undefined {
 		if (response.status === 401) {
 			this.credentials.forgetToken();
 			this.log.error("Claude Code Keychain token rejected; will re-read on next poll.");
@@ -83,4 +73,22 @@ export class RateLimitClient {
 
 		return parseSnapshot(new Headers(response.headers));
 	}
+}
+
+function probeRequestWith(accessToken: string): HttpRequest {
+	return {
+		url: API_URL,
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+			"anthropic-version": "2023-06-01",
+			"anthropic-beta": "oauth-2025-04-20",
+			"content-type": "application/json",
+		},
+		body: JSON.stringify({
+			model: PROBE_MODEL,
+			max_tokens: 1,
+			messages: [{ role: "user", content: "." }],
+		}),
+	};
 }
