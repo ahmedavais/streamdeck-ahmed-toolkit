@@ -13,6 +13,8 @@ export type HttpResponse = {
 	body: string;
 };
 
+export type NulledHttpResponse = HttpResponse | { networkError: string };
+
 type Fetch = typeof fetch;
 
 export class HttpClient {
@@ -20,7 +22,7 @@ export class HttpClient {
 		return new HttpClient(fetch);
 	}
 
-	static createNull(responses: HttpResponse | HttpResponse[] = DEFAULT_NULLED_RESPONSE): HttpClient {
+	static createNull(responses: NulledHttpResponse | NulledHttpResponse[] = DEFAULT_NULLED_RESPONSE): HttpClient {
 		return new HttpClient(stubbedFetch(ConfigurableResponses.create(responses, "nulled HttpClient")));
 	}
 
@@ -48,9 +50,10 @@ const DEFAULT_NULLED_RESPONSE: HttpResponse = {
 	body: "Nulled HttpClient default body",
 };
 
-function stubbedFetch(responses: ConfigurableResponses<HttpResponse>): Fetch {
+function stubbedFetch(responses: ConfigurableResponses<NulledHttpResponse>): Fetch {
 	return async () => {
-		const { status, headers, body } = responses.next();
-		return new Response(body, { status, headers });
+		const response = responses.next();
+		if ("networkError" in response) throw new TypeError("fetch failed", { cause: new Error(response.networkError) });
+		return new Response(response.body, { status: response.status, headers: response.headers });
 	};
 }

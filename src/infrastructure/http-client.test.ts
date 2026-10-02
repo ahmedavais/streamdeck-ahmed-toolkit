@@ -100,6 +100,14 @@ test("a nulled client answers with configured responses in order", async () => {
 	);
 });
 
+test("a nulled client fails with a configured network error", async () => {
+	const client = HttpClient.createNull({ networkError: "getaddrinfo ENOTFOUND api.example" });
+
+	await assert.rejects(client.request({ url: "https://api.example/v1", method: "POST", headers: {}, body: "{}" }), {
+		message: "POST https://api.example/v1 failed: getaddrinfo ENOTFOUND api.example",
+	});
+});
+
 async function closedPort(): Promise<number> {
 	const server = http.createServer();
 	await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
