@@ -1,8 +1,12 @@
-import type { Keychain } from "../../infrastructure/keychain";
+import { Keychain } from "../../infrastructure/keychain";
 
 const KEYCHAIN_SERVICE = "Claude Code-credentials";
 
 export class ClaudeCredentials {
+	static createNull(): ClaudeCredentials {
+		return new ClaudeCredentials(Keychain.createNull({ password: keychainEntryHolding("Nulled ClaudeCredentials access token") }));
+	}
+
 	private rememberedToken: string | undefined;
 
 	constructor(private readonly keychain: Keychain) {}
@@ -29,4 +33,8 @@ function accessTokenIn(entry: string): unknown {
 	} catch {
 		return undefined;
 	}
+}
+
+function keychainEntryHolding(accessToken: string): string {
+	return JSON.stringify({ claudeAiOauth: { accessToken } });
 }

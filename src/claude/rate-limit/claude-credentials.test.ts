@@ -49,6 +49,12 @@ test("fails clearly when the Keychain entry has no access token", () => {
 	assert.throws(() => credentials.accessToken(), { message: "Claude Code's Keychain entry holds no access token" });
 });
 
+test("a nulled instance answers with an obviously fake default token", () => {
+	const credentials = ClaudeCredentials.createNull();
+
+	assert.equal(credentials.accessToken(), "Nulled ClaudeCredentials access token");
+});
+
 function credentialsHolding(accessToken: string): string {
 	return JSON.stringify({ claudeAiOauth: { accessToken, refreshToken: "irrelevant refresh token" } });
 }
