@@ -5,6 +5,9 @@ import { after, before, beforeEach, test } from "node:test";
 import { HttpClient } from "./http-client";
 
 type SeenRequest = { method: string; path: string; headers: http.IncomingHttpHeaders; body: string };
+type ServerResponse = { status: number; headers: Record<string, string>; body: string };
+
+const UNSPECIFIED_RESPONSE: ServerResponse = { status: 501, headers: {}, body: "SpyServer response not specified" };
 
 const spyServer = createSpyServer();
 
@@ -30,21 +33,38 @@ test("sends the request to a real server", async () => {
 	});
 });
 
+test("returns the real server's response", async () => {
+	const client = HttpClient.create();
+	spyServer.respondWith({ status: 429, headers: { "x-quota": "spent" }, body: "slow down" });
+
+	const response = await client.request({ url: spyServer.url(), method: "GET", headers: {} });
+
+	assert.deepEqual(
+		{ status: response.status, quota: response.headers["x-quota"], body: response.body },
+		{ status: 429, quota: "spent", body: "slow down" },
+	);
+});
+
 function createSpyServer() {
 	let lastRequest: SeenRequest | null = null;
+	let nextResponse = UNSPECIFIED_RESPONSE;
 	const server = http.createServer((request, response) => {
 		let body = "";
 		request.on("data", (chunk) => (body += chunk));
 		request.on("end", () => {
 			lastRequest = { method: request.method ?? "", path: request.url ?? "", headers: headersWithoutNoise(request.headers), body };
-			response.end();
+			response.writeHead(nextResponse.status, nextResponse.headers).end(nextResponse.body);
 		});
 	});
 
 	return {
 		start: () => new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve)),
 		stop: () => new Promise<void>((resolve) => server.close(() => resolve())),
-		reset: () => (lastRequest = null),
+		reset: () => {
+			lastRequest = null;
+			nextResponse = UNSPECIFIED_RESPONSE;
+		},
+		respondWith: (response: ServerResponse) => (nextResponse = response),
 		url: () => `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
 		lastRequest: () => lastRequest,
 	};
