@@ -1,4 +1,7 @@
 import streamDeck from "@elgato/streamdeck";
+import type { HttpClient } from "../../infrastructure/http-client";
+import type { Log } from "../../infrastructure/log";
+import type { ClaudeCredentials } from "./claude-credentials";
 import { getAccessToken, invalidateAccessToken } from "./keychain-token";
 import { parseSnapshot, RateLimitSnapshot } from "./parse-snapshot";
 
@@ -33,4 +36,31 @@ export async function fetchRateLimitSnapshot(): Promise<RateLimitSnapshot | unde
 	}
 
 	return parseSnapshot(response.headers);
+}
+
+export class RateLimitClient {
+	constructor(
+		private readonly http: HttpClient,
+		private readonly credentials: ClaudeCredentials,
+		private readonly log: Log,
+	) {}
+
+	async fetchSnapshot(): Promise<RateLimitSnapshot | undefined> {
+		await this.http.request({
+			url: API_URL,
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${this.credentials.accessToken()}`,
+				"anthropic-version": "2023-06-01",
+				"anthropic-beta": "oauth-2025-04-20",
+				"content-type": "application/json",
+			},
+			body: JSON.stringify({
+				model: PROBE_MODEL,
+				max_tokens: 1,
+				messages: [{ role: "user", content: "." }],
+			}),
+		});
+		return undefined;
+	}
 }
