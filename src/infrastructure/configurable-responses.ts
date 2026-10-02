@@ -1,6 +1,6 @@
 export class ConfigurableResponses<T> {
-	static create<T>(responses: T | T[]): ConfigurableResponses<T> {
-		return new ConfigurableResponses(Array.isArray(responses) ? inOrder(responses) : () => responses);
+	static create<T>(responses: T | T[], owner: string): ConfigurableResponses<T> {
+		return new ConfigurableResponses(Array.isArray(responses) ? inOrder(responses, owner) : () => responses);
 	}
 
 	constructor(private readonly nextResponse: () => T) {}
@@ -10,7 +10,10 @@ export class ConfigurableResponses<T> {
 	}
 }
 
-function inOrder<T>(responses: T[]): () => T {
+function inOrder<T>(responses: T[], owner: string): () => T {
 	const remaining = [...responses];
-	return () => remaining.shift() as T;
+	return () => {
+		if (remaining.length === 0) throw new Error(`No more responses configured in ${owner}`);
+		return remaining.shift() as T;
+	};
 }
