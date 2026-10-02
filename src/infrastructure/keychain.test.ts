@@ -29,3 +29,12 @@ test("a nulled keychain fails for a configured missing item", () => {
 		message: 'Could not read "Some Service" from the Keychain: security: SecKeychainSearchCopyNext: The specified item could not be found in the keychain.',
 	});
 });
+
+test("tracks which items it reads", () => {
+	const keychain = Keychain.createNull();
+	const reads = keychain.trackReads();
+
+	keychain.readPassword("Some Service");
+
+	assert.deepEqual(reads.data, [{ service: "Some Service" }]);
+});
