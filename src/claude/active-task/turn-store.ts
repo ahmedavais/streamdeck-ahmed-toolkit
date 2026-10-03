@@ -8,15 +8,22 @@ export const SESSIONS_DIR = path.join(os.homedir(), ".streamdeck-ahmed-toolkit",
 export function readTurnState(sessionsDir = SESSIONS_DIR): TurnStateFile {
 	if (!fs.existsSync(sessionsDir)) return {};
 
-	return Object.fromEntries(
-		sessionFilesIn(sessionsDir).map((name) => [path.basename(name, ".json"), readTurn(path.join(sessionsDir, name))]),
-	);
+	const turns: TurnStateFile = {};
+	for (const name of sessionFilesIn(sessionsDir)) {
+		const turn = readTurn(path.join(sessionsDir, name));
+		if (turn) turns[path.basename(name, ".json")] = turn;
+	}
+	return turns;
 }
 
 function sessionFilesIn(sessionsDir: string): string[] {
 	return fs.readdirSync(sessionsDir).filter((name) => name.endsWith(".json"));
 }
 
-function readTurn(file: string): Turn {
-	return JSON.parse(fs.readFileSync(file, "utf8"));
+function readTurn(file: string): Turn | undefined {
+	try {
+		return JSON.parse(fs.readFileSync(file, "utf8"));
+	} catch {
+		return undefined;
+	}
 }

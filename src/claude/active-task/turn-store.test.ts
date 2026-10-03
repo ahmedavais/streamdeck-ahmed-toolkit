@@ -32,6 +32,15 @@ test("ignores files that aren't session files", () => {
 	assert.deepEqual(readTurnState(sessionsDir), { "session-a": { turnStartedAt: 1_000 } });
 });
 
+test("skips a session file it can't parse", () => {
+	const sessionsDir = sessionsDirHolding({
+		"session-a.json": JSON.stringify({ turnStartedAt: 1_000 }),
+		"session-b.json": "{ not json",
+	});
+
+	assert.deepEqual(readTurnState(sessionsDir), { "session-a": { turnStartedAt: 1_000 } });
+});
+
 function sessionsDirHolding(files: Record<string, string>): string {
 	const sessionsDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-sessions-"));
 	for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(sessionsDir, name), content);
