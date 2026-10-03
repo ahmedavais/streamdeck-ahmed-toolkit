@@ -6,7 +6,10 @@ export function startTurn(sessionsDir, sessionId, now) {
 }
 
 export function endTurn(sessionsDir, sessionId, now) {
-	const turn = JSON.parse(fs.readFileSync(sessionFile(sessionsDir, sessionId), "utf8"));
+	const file = sessionFile(sessionsDir, sessionId);
+	if (!fs.existsSync(file)) return;
+
+	const turn = JSON.parse(fs.readFileSync(file, "utf8"));
 	writeTurn(sessionsDir, sessionId, { ...turn, turnEndedAt: now });
 }
 

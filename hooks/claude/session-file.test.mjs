@@ -22,6 +22,14 @@ test("ending a turn records when it ended", () => {
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, turnEndedAt: 4_000 } });
 });
 
+test("ending a turn for an unknown session does nothing", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	endTurn(sessionsDir, "never-started", 4_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), {});
+});
+
 function temporarySessionsDir() {
 	return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-sessions-")), "sessions");
 }
