@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { startTurn } from "./session-file.mjs";
+import { endTurn, startTurn } from "./session-file.mjs";
 
 test("starting a turn records when it started", () => {
 	const sessionsDir = temporarySessionsDir();
@@ -11,6 +11,15 @@ test("starting a turn records when it started", () => {
 	startTurn(sessionsDir, "session-a", 1_000);
 
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000 } });
+});
+
+test("ending a turn records when it ended", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+
+	endTurn(sessionsDir, "session-a", 4_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, turnEndedAt: 4_000 } });
 });
 
 function temporarySessionsDir() {
