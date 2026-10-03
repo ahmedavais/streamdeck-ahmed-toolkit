@@ -13,7 +13,7 @@ export class IntervalTimer {
 	}
 
 	private running: NodeJS.Timeout | undefined;
-	private onTick: () => unknown = () => {};
+	private onTick: () => unknown = doNothing;
 
 	constructor(private readonly timers: Timers) {}
 
@@ -28,8 +28,11 @@ export class IntervalTimer {
 
 	stop(): void {
 		this.timers.clearInterval(this.running);
+		this.onTick = doNothing;
 	}
 }
+
+function doNothing(): void {}
 
 class StubbedTimers implements Timers {
 	setInterval(): NodeJS.Timeout {

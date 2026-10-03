@@ -38,3 +38,14 @@ test("a nulled timer fires when a tick is simulated", async () => {
 
 	assert.equal(ticks, 2);
 });
+
+test("a stopped timer ignores simulated ticks", async () => {
+	const timer = IntervalTimer.createNull();
+	let ticks = 0;
+	timer.start(60_000, () => ticks++);
+
+	timer.stop();
+	await timer.simulateTick();
+
+	assert.equal(ticks, 0);
+});
