@@ -29,7 +29,8 @@ export class Poller {
 	}
 
 	async pollNow(): Promise<void> {
-		this.options.show((await this.options.check()) as KeyDisplay);
+		const display = await this.options.check();
+		if (display) this.options.show(display);
 	}
 
 	private startTimerUnlessRunning(): void {

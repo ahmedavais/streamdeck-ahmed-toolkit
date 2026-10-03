@@ -72,6 +72,14 @@ test("polls on demand", async () => {
 	assert.deepEqual(shown, [{ image: "check 1" }, { image: "check 2" }]);
 });
 
+test("shows nothing when the check finds nothing", async () => {
+	const { poller, shown } = createPoller({ check: async () => undefined });
+
+	await poller.keyAppeared();
+
+	assert.deepEqual(shown, []);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,
