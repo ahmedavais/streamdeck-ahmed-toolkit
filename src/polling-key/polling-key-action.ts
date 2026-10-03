@@ -25,6 +25,10 @@ export abstract class PollingKeyAction extends SingletonAction {
 		if (this.actions.next().done) this.poller.lastKeyGone();
 	}
 
+	protected pollNow(): void {
+		this.poller.pollNow();
+	}
+
 	private showOnVisibleKeys({ title, image }: KeyDisplay): void {
 		for (const visibleAction of this.actions) {
 			if (!visibleAction.isKey()) continue;

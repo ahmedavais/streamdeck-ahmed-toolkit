@@ -1,12 +1,7 @@
-import streamDeck, {
-	action,
-	KeyAction,
-	KeyDownEvent,
-	SingletonAction,
-	WillAppearEvent,
-	WillDisappearEvent,
-} from "@elgato/streamdeck";
+import streamDeck, { action, KeyDownEvent } from "@elgato/streamdeck";
 import { renderStateImage } from "../../key-image/state-image";
+import type { KeyDisplay } from "../../polling-key/poller";
+import { PollingKeyAction } from "../../polling-key/polling-key-action";
 import { probeMcpServers } from "../mcp-status/mcp-status-probe";
 import type { ServerStatus } from "../mcp-status/server-status";
 import { summarizeServerStatuses, type Severity, type StatusSummary } from "../mcp-status/status-summary";
@@ -23,47 +18,21 @@ const COLOR_BY_SEVERITY: Record<Severity, string> = {
 };
 
 @action({ UUID: "com.ahmedavais.toolkit.claude.mcp-status" })
-export class McpStatus extends SingletonAction {
-	private timer: NodeJS.Timeout | undefined;
-	private probeInFlight = false;
-
-	override onWillAppear(ev: WillAppearEvent): void {
-		if (!ev.action.isKey()) return;
-
-		this.recheck();
-
-		if (!this.timer) {
-			this.timer = setInterval(() => this.recheck(), POLL_INTERVAL_MS);
-		}
-	}
-
-	override onWillDisappear(_ev: WillDisappearEvent): void {
-		if (this.actions.next().done) {
-			clearInterval(this.timer);
-			this.timer = undefined;
-		}
+export class McpStatus extends PollingKeyAction {
+	constructor() {
+		super({ name: "MCP status", everyMs: POLL_INTERVAL_MS, failedDisplay: displayFor(UNREACHABLE) });
 	}
 
 	override onKeyDown(ev: KeyDownEvent): void {
 		if (ev.action.isKey()) ev.action.setTitle(CHECKING_TITLE);
 
-		this.recheck();
+		this.pollNow();
 	}
 
-	private async recheck(): Promise<void> {
-		if (this.probeInFlight) return;
-		this.probeInFlight = true;
-
-		try {
-			const statuses = await probeMcpServers();
-			this.report(statuses);
-			this.show(summarizeServerStatuses(statuses));
-		} catch (failure) {
-			streamDeck.logger.error("Could not read MCP server health", failure);
-			this.show(UNREACHABLE);
-		} finally {
-			this.probeInFlight = false;
-		}
+	protected override async check(): Promise<KeyDisplay> {
+		const statuses = await probeMcpServers();
+		this.report(statuses);
+		return displayFor(summarizeServerStatuses(statuses));
 	}
 
 	private report(statuses: ServerStatus[]): void {
@@ -72,17 +41,8 @@ export class McpStatus extends SingletonAction {
 
 		streamDeck.logger.info(`MCP servers not connected: ${unhealthy.map(({ name, health }) => `${name} (${health})`).join(", ")}`);
 	}
+}
 
-	private show({ label, severity }: StatusSummary): void {
-		for (const visibleAction of this.actions) {
-			if (!visibleAction.isKey()) continue;
-
-			this.paint(visibleAction, label, severity);
-		}
-	}
-
-	private paint(action: KeyAction, label: string, severity: Severity): void {
-		action.setTitle(label);
-		action.setImage(renderStateImage(COLOR_BY_SEVERITY[severity]));
-	}
+function displayFor({ label, severity }: StatusSummary): KeyDisplay {
+	return { title: label, image: renderStateImage(COLOR_BY_SEVERITY[severity]) };
 }
