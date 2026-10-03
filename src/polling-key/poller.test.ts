@@ -115,6 +115,20 @@ test("logs a failed check and shows the failure display", async () => {
 	assert.deepEqual(shown, [{ title: "?", image: "grey" }]);
 });
 
+test("logs a failed check and shows nothing when there's no failure display", async () => {
+	const { poller, shown, logOutput } = createPoller({
+		name: "usage gauge",
+		check: async () => {
+			throw new Error("Keychain locked");
+		},
+	});
+
+	await poller.keyAppeared();
+
+	assert.deepEqual(logOutput.data, [{ level: "error", message: "Could not refresh usage gauge: Keychain locked" }]);
+	assert.deepEqual(shown, []);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,

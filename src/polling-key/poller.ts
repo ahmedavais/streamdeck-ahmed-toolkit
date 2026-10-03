@@ -40,7 +40,7 @@ export class Poller {
 			if (display) this.options.show(display);
 		} catch (failure) {
 			this.log.error(`Could not refresh ${this.options.name}: ${(failure as Error).message}`);
-			this.options.show(this.options.failedDisplay as KeyDisplay);
+			if (this.options.failedDisplay) this.options.show(this.options.failedDisplay);
 		} finally {
 			this.checkInFlight = false;
 		}
