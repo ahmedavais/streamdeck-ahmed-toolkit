@@ -129,6 +129,21 @@ test("logs a failed check and shows nothing when there's no failure display", as
 	assert.deepEqual(shown, []);
 });
 
+test("keeps polling after a failed check", async () => {
+	let checks = 0;
+	const { poller, timer, shown } = createPoller({
+		check: async () => {
+			if (++checks === 1) throw new Error("first check fails");
+			return { image: "recovered" };
+		},
+	});
+	await poller.keyAppeared();
+
+	await timer.simulateTick();
+
+	assert.deepEqual(shown, [{ image: "recovered" }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,
