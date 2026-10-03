@@ -21,9 +21,10 @@ test("formats a fraction as a rounded whole-number percentage", () => {
 	assert.equal(formatPercent(0.426), "43%");
 });
 
-test("renders a data-uri image without throwing", () => {
-	const image = renderGaugeImage({ usage: 0.17 }, "fresh");
-	assert.match(image, /^data:image\/svg\+xml;base64,/);
+test("a fresh reading renders the percentage in its utilization colour", () => {
+	const svg = svgOf(renderGaugeImage({ usage: 0.9 }, "fresh"));
+
+	assert.match(svg, /fill="#e5484d"[^>]*>90%</);
 });
 
 test("a stale reading renders the same percentage in grey", () => {
