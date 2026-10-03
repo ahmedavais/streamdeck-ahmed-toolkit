@@ -17,6 +17,12 @@ test("reads every session's turn", () => {
 	});
 });
 
+test("reads nothing when the folder doesn't exist", () => {
+	const missingDir = path.join(os.tmpdir(), "toolkit-sessions-that-were-never-created");
+
+	assert.deepEqual(readTurnState(missingDir), {});
+});
+
 function sessionsDirHolding(files: Record<string, string>): string {
 	const sessionsDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-sessions-"));
 	for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(sessionsDir, name), content);
