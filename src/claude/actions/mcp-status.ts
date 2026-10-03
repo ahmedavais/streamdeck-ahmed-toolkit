@@ -1,4 +1,5 @@
-import streamDeck, { action, KeyDownEvent } from "@elgato/streamdeck";
+import { action, KeyDownEvent } from "@elgato/streamdeck";
+import { Log } from "../../infrastructure/log";
 import { renderStateImage } from "../../key-image/state-image";
 import type { KeyDisplay } from "../../polling-key/poller";
 import { PollingKeyAction } from "../../polling-key/polling-key-action";
@@ -19,6 +20,8 @@ const COLOR_BY_SEVERITY: Record<Severity, string> = {
 
 @action({ UUID: "com.ahmedavais.toolkit.claude.mcp-status" })
 export class McpStatus extends PollingKeyAction {
+	private readonly log = Log.create();
+
 	constructor() {
 		super({ name: "MCP status", everyMs: POLL_INTERVAL_MS, failedDisplay: displayFor(UNREACHABLE) });
 	}
@@ -39,7 +42,7 @@ export class McpStatus extends PollingKeyAction {
 		const unhealthy = statuses.filter(({ health }) => health !== "connected");
 		if (unhealthy.length === 0) return;
 
-		streamDeck.logger.info(`MCP servers not connected: ${unhealthy.map(({ name, health }) => `${name} (${health})`).join(", ")}`);
+		this.log.info(`MCP servers not connected: ${unhealthy.map(({ name, health }) => `${name} (${health})`).join(", ")}`);
 	}
 }
 
