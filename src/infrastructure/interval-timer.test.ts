@@ -27,3 +27,14 @@ test("a nulled timer never fires on its own", async () => {
 
 	assert.equal(ticks, 0);
 });
+
+test("a nulled timer fires when a tick is simulated", async () => {
+	const timer = IntervalTimer.createNull();
+	let ticks = 0;
+	timer.start(60_000, () => ticks++);
+
+	await timer.simulateTick();
+	await timer.simulateTick();
+
+	assert.equal(ticks, 2);
+});

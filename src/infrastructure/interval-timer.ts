@@ -13,11 +13,17 @@ export class IntervalTimer {
 	}
 
 	private running: NodeJS.Timeout | undefined;
+	private onTick: () => unknown = () => {};
 
 	constructor(private readonly timers: Timers) {}
 
 	start(everyMs: number, onTick: () => unknown): void {
-		this.running = this.timers.setInterval(onTick, everyMs);
+		this.onTick = onTick;
+		this.running = this.timers.setInterval(() => this.onTick(), everyMs);
+	}
+
+	async simulateTick(): Promise<void> {
+		await this.onTick();
 	}
 
 	stop(): void {
