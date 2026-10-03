@@ -23,13 +23,16 @@ export class Log {
 	}
 
 	info(message: string): void {
-		this.output.emit({ level: "info", message });
-		this.logger.info(message);
+		this.write("info", message);
 	}
 
 	error(message: string): void {
-		this.output.emit({ level: "error", message });
-		this.logger.error(message);
+		this.write("error", message);
+	}
+
+	private write(level: LogEntry["level"], message: string): void {
+		this.output.emit({ level, message });
+		this.logger[level](message);
 	}
 }
 
