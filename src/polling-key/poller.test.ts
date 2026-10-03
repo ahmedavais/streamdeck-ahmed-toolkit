@@ -23,6 +23,15 @@ test("starts the timer at the given interval when the first key appears", async 
 	assert.deepEqual(timerEvents.data, [{ started: { everyMs: 45_000 } }]);
 });
 
+test("keeps a single timer when more keys appear", async () => {
+	const { poller, timerEvents } = createPoller({ everyMs: 45_000 });
+
+	await poller.keyAppeared();
+	await poller.keyAppeared();
+
+	assert.deepEqual(timerEvents.data, [{ started: { everyMs: 45_000 } }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,

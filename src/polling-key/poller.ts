@@ -10,6 +10,8 @@ export type PollingOptions = {
 };
 
 export class Poller {
+	private polling = false;
+
 	constructor(
 		private readonly timer: IntervalTimer,
 		private readonly log: Log,
@@ -17,7 +19,10 @@ export class Poller {
 	) {}
 
 	async keyAppeared(): Promise<void> {
-		this.timer.start(this.options.everyMs, () => {});
+		if (!this.polling) {
+			this.polling = true;
+			this.timer.start(this.options.everyMs, () => {});
+		}
 		this.options.show((await this.options.check()) as KeyDisplay);
 	}
 }
