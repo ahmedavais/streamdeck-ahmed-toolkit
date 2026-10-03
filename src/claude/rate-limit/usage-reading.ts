@@ -1,9 +1,13 @@
 import type { KeyDisplay } from "../../polling-key/poller";
 import { renderGaugeImage } from "./gauge-image";
 import type { RateLimitSnapshot } from "./parse-snapshot";
-import type { RateLimitClient } from "./rate-limit-client";
+import { RateLimitClient } from "./rate-limit-client";
 
 export class UsageReading {
+	static create(): UsageReading {
+		return new UsageReading(RateLimitClient.create());
+	}
+
 	private lastSnapshot: RateLimitSnapshot | undefined;
 
 	constructor(private readonly rateLimit: RateLimitClient) {}
