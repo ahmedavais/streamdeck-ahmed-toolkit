@@ -18,11 +18,15 @@ export abstract class PollingKeyAction extends SingletonAction {
 	}
 
 	override onWillDisappear(_ev: WillDisappearEvent): void {
-		if (this.actions.next().done) this.poller.lastKeyGone();
+		if (this.nothingVisible()) this.poller.lastKeyGone();
 	}
 
 	protected pollNow(): void {
 		this.poller.pollNow();
+	}
+
+	private nothingVisible(): boolean {
+		return this.actions.next().done === true;
 	}
 
 	private showOnVisibleKeys({ title, image }: KeyDisplay): void {
