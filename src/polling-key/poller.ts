@@ -1,5 +1,5 @@
-import type { IntervalTimer } from "../infrastructure/interval-timer";
-import type { Log } from "../infrastructure/log";
+import { IntervalTimer } from "../infrastructure/interval-timer";
+import { Log } from "../infrastructure/log";
 
 export type KeyDisplay = { title?: string; image: string };
 
@@ -12,6 +12,10 @@ export type PollingOptions = {
 };
 
 export class Poller {
+	static create(options: PollingOptions): Poller {
+		return new Poller(IntervalTimer.create(), Log.create(), options);
+	}
+
 	private polling = false;
 	private checkInFlight = false;
 
