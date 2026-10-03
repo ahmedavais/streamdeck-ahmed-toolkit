@@ -9,8 +9,12 @@ export function readTurnState(sessionsDir = SESSIONS_DIR): TurnStateFile {
 	if (!fs.existsSync(sessionsDir)) return {};
 
 	return Object.fromEntries(
-		fs.readdirSync(sessionsDir).map((name) => [path.basename(name, ".json"), readTurn(path.join(sessionsDir, name))]),
+		sessionFilesIn(sessionsDir).map((name) => [path.basename(name, ".json"), readTurn(path.join(sessionsDir, name))]),
 	);
+}
+
+function sessionFilesIn(sessionsDir: string): string[] {
+	return fs.readdirSync(sessionsDir).filter((name) => name.endsWith(".json"));
 }
 
 function readTurn(file: string): Turn {
