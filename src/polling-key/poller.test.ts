@@ -62,6 +62,16 @@ test("starts again when a key reappears", async () => {
 	assert.deepEqual(timerEvents.data, [{ started: { everyMs: 45_000 } }, { stopped: true }, { started: { everyMs: 45_000 } }]);
 });
 
+test("polls on demand", async () => {
+	let checks = 0;
+	const { poller, shown } = createPoller({ check: async () => ({ image: `check ${++checks}` }) });
+	await poller.keyAppeared();
+
+	await poller.pollNow();
+
+	assert.deepEqual(shown, [{ image: "check 1" }, { image: "check 2" }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,
