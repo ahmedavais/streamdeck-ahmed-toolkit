@@ -11,3 +11,11 @@ test("shows a fresh reading in colour", async () => {
 
 	assert.deepEqual(display, { image: renderGaugeImage({ usage: 0.42 }, "fresh") });
 });
+
+test("shows nothing when the probe fails before any reading", async () => {
+	const reading = new UsageReading(RateLimitClient.createNull({ unavailable: true }));
+
+	const display = await reading.currentDisplay();
+
+	assert.equal(display, undefined);
+});
