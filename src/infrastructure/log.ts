@@ -1,9 +1,9 @@
 import streamDeck from "@elgato/streamdeck";
 import { OutputListener, type OutputTracker } from "./output-listener";
 
-export type LogEntry = { level: "error"; message: string };
+export type LogEntry = { level: "info" | "error"; message: string };
 
-type Logger = { error(message: string): void };
+type Logger = { info(message: string): void; error(message: string): void };
 
 export class Log {
 	static create(): Log {
@@ -22,10 +22,15 @@ export class Log {
 		return this.output.trackOutput();
 	}
 
+	info(message: string): void {
+		this.output.emit({ level: "info", message });
+		this.logger.info(message);
+	}
+
 	error(message: string): void {
 		this.output.emit({ level: "error", message });
 		this.logger.error(message);
 	}
 }
 
-const stubbedLogger: Logger = { error: () => {} };
+const stubbedLogger: Logger = { info: () => {}, error: () => {} };
