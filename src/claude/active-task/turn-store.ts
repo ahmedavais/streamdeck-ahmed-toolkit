@@ -1,14 +1,16 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { TurnStateFile } from "./turn-state";
+import type { Turn, TurnStateFile } from "./turn-state";
 
-const STATE_FILE = path.join(os.homedir(), ".streamdeck-ahmed-toolkit", "session-turns.json");
+export const SESSIONS_DIR = path.join(os.homedir(), ".streamdeck-ahmed-toolkit", "sessions");
 
-export function readTurnState(): TurnStateFile {
-	try {
-		return JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
-	} catch {
-		return {};
-	}
+export function readTurnState(sessionsDir = SESSIONS_DIR): TurnStateFile {
+	return Object.fromEntries(
+		fs.readdirSync(sessionsDir).map((name) => [path.basename(name, ".json"), readTurn(path.join(sessionsDir, name))]),
+	);
+}
+
+function readTurn(file: string): Turn {
+	return JSON.parse(fs.readFileSync(file, "utf8"));
 }

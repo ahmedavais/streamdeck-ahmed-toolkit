@@ -1,0 +1,24 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { test } from "node:test";
+import { readTurnState } from "./turn-store";
+
+test("reads every session's turn", () => {
+	const sessionsDir = sessionsDirHolding({
+		"session-a.json": JSON.stringify({ turnStartedAt: 1_000 }),
+		"session-b.json": JSON.stringify({ turnStartedAt: 2_000, turnEndedAt: 5_000 }),
+	});
+
+	assert.deepEqual(readTurnState(sessionsDir), {
+		"session-a": { turnStartedAt: 1_000 },
+		"session-b": { turnStartedAt: 2_000, turnEndedAt: 5_000 },
+	});
+});
+
+function sessionsDirHolding(files: Record<string, string>): string {
+	const sessionsDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-sessions-"));
+	for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(sessionsDir, name), content);
+	return sessionsDir;
+}
