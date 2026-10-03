@@ -8,12 +8,11 @@ test("calls back on every interval until stopped", async () => {
 	let ticks = 0;
 
 	timer.start(5, () => ticks++);
-	await wait(30);
+	await waitUntil(() => ticks >= 2);
 	timer.stop();
 	const ticksWhenStopped = ticks;
 	await wait(20);
 
-	assert.ok(ticksWhenStopped >= 2, `expected several ticks, got ${ticksWhenStopped}`);
 	assert.equal(ticks, ticksWhenStopped, "shouldn't tick after stopping");
 });
 
@@ -59,3 +58,11 @@ test("tracks when it starts and stops", () => {
 
 	assert.deepEqual(events.data, [{ started: { everyMs: 45_000 } }, { stopped: true }]);
 });
+
+async function waitUntil(condition: () => boolean, timeoutMs = 2_000): Promise<void> {
+	const deadline = Date.now() + timeoutMs;
+	while (!condition()) {
+		if (Date.now() > deadline) throw new Error(`Condition not met within ${timeoutMs}ms`);
+		await wait(1);
+	}
+}
