@@ -30,6 +30,16 @@ test("ending a turn for an unknown session does nothing", () => {
 	assert.deepEqual(sessionFiles(sessionsDir), {});
 });
 
+test("starting a new turn replaces the previous turn's timings", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+	endTurn(sessionsDir, "session-a", 4_000);
+
+	startTurn(sessionsDir, "session-a", 9_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 9_000 } });
+});
+
 function temporarySessionsDir() {
 	return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-sessions-")), "sessions");
 }
