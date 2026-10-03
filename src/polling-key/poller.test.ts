@@ -15,6 +15,14 @@ test("shows what the check finds as soon as a key appears", async () => {
 	assert.deepEqual(shown, [{ title: "3", image: "green" }]);
 });
 
+test("starts the timer at the given interval when the first key appears", async () => {
+	const { poller, timerEvents } = createPoller({ everyMs: 45_000 });
+
+	await poller.keyAppeared();
+
+	assert.deepEqual(timerEvents.data, [{ started: { everyMs: 45_000 } }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,

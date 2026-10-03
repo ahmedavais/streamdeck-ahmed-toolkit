@@ -17,6 +17,7 @@ export class Poller {
 	) {}
 
 	async keyAppeared(): Promise<void> {
+		this.timer.start(this.options.everyMs, () => {});
 		this.options.show((await this.options.check()) as KeyDisplay);
 	}
 }
