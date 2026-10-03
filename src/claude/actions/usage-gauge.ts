@@ -16,6 +16,6 @@ export class UsageGauge extends PollingKeyAction {
 
 	protected override async check(): Promise<KeyDisplay | undefined> {
 		const snapshot = await this.rateLimit.fetchSnapshot();
-		return snapshot && { image: renderGaugeImage(snapshot) };
+		return snapshot ? { image: renderGaugeImage(snapshot) } : undefined;
 	}
 }
