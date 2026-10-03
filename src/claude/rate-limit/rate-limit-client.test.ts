@@ -89,6 +89,12 @@ test("a nulled client reports the configured usage", async () => {
 	assert.deepEqual(await client.fetchSnapshot(), { usage: 0.42 });
 });
 
+test("a nulled client reports nothing when rate limits are unavailable", async () => {
+	const client = RateLimitClient.createNull({ unavailable: true });
+
+	assert.equal(await client.fetchSnapshot(), undefined);
+});
+
 async function fetchSnapshot({
 	credentials = { accessToken: "irrelevant token" } as NulledCredentials | NulledCredentials[],
 	httpResponses = IRRELEVANT_RESPONSE as NulledHttpResponse | NulledHttpResponse[],

@@ -3,6 +3,8 @@ import { Log } from "../../infrastructure/log";
 import { ClaudeCredentials } from "./claude-credentials";
 import { parseSnapshot, RateLimitSnapshot } from "./parse-snapshot";
 
+export type NulledReading = RateLimitSnapshot | { unavailable: true };
+
 const API_URL = "https://api.anthropic.com/v1/messages";
 const PROBE_MODEL = "claude-haiku-4-5-20251001";
 
@@ -11,7 +13,7 @@ export class RateLimitClient {
 		return new RateLimitClient(HttpClient.create(), ClaudeCredentials.create(), Log.create());
 	}
 
-	static createNull(reading?: RateLimitSnapshot): RateLimitClient {
+	static createNull(reading?: NulledReading): RateLimitClient {
 		const http = reading ? HttpClient.createNull(probeResponseReporting(reading)) : HttpClient.createNull();
 		return new RateLimitClient(http, ClaudeCredentials.createNull(), Log.createNull());
 	}
@@ -70,6 +72,7 @@ function probeRequestWith(accessToken: string): HttpRequest {
 	};
 }
 
-function probeResponseReporting({ usage }: RateLimitSnapshot): NulledHttpResponse {
-	return { status: 200, headers: { "anthropic-ratelimit-unified-7d-utilization": String(usage) }, body: "{}" };
+function probeResponseReporting(reading: NulledReading): NulledHttpResponse {
+	if ("unavailable" in reading) return { networkError: "Nulled RateLimitClient: rate limits unavailable" };
+	return { status: 200, headers: { "anthropic-ratelimit-unified-7d-utilization": String(reading.usage) }, body: "{}" };
 }
