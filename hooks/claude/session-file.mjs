@@ -19,7 +19,9 @@ export function endSession(sessionsDir, sessionId) {
 
 function writeTurn(sessionsDir, sessionId, turn) {
 	fs.mkdirSync(sessionsDir, { recursive: true });
-	fs.writeFileSync(sessionFile(sessionsDir, sessionId), JSON.stringify(turn));
+	const draft = path.join(sessionsDir, `.${sessionId}.${process.pid}.draft`);
+	fs.writeFileSync(draft, JSON.stringify(turn));
+	fs.renameSync(draft, sessionFile(sessionsDir, sessionId));
 }
 
 function sessionFile(sessionsDir, sessionId) {
