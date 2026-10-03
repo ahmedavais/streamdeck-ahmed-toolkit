@@ -49,3 +49,13 @@ test("a stopped timer ignores simulated ticks", async () => {
 
 	assert.equal(ticks, 0);
 });
+
+test("tracks when it starts and stops", () => {
+	const timer = IntervalTimer.createNull();
+	const events = timer.trackEvents();
+
+	timer.start(45_000, () => {});
+	timer.stop();
+
+	assert.deepEqual(events.data, [{ started: { everyMs: 45_000 } }, { stopped: true }]);
+});
