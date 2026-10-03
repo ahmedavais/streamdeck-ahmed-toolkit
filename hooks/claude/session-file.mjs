@@ -13,6 +13,10 @@ export function endTurn(sessionsDir, sessionId, now) {
 	writeTurn(sessionsDir, sessionId, { ...turn, turnEndedAt: now });
 }
 
+export function endSession(sessionsDir, sessionId) {
+	fs.rmSync(sessionFile(sessionsDir, sessionId));
+}
+
 function writeTurn(sessionsDir, sessionId, turn) {
 	fs.mkdirSync(sessionsDir, { recursive: true });
 	fs.writeFileSync(sessionFile(sessionsDir, sessionId), JSON.stringify(turn));

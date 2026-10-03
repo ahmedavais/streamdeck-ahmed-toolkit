@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { endTurn, startTurn } from "./session-file.mjs";
+import { endSession, endTurn, startTurn } from "./session-file.mjs";
 
 test("starting a turn records when it started", () => {
 	const sessionsDir = temporarySessionsDir();
@@ -38,6 +38,16 @@ test("starting a new turn replaces the previous turn's timings", () => {
 	startTurn(sessionsDir, "session-a", 9_000);
 
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 9_000 } });
+});
+
+test("ending a session removes its file", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+	startTurn(sessionsDir, "session-b", 2_000);
+
+	endSession(sessionsDir, "session-a");
+
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-b.json": { turnStartedAt: 2_000 } });
 });
 
 function temporarySessionsDir() {
