@@ -1,6 +1,8 @@
-import { action, KeyAction, SingletonAction, WillAppearEvent, WillDisappearEvent } from "@elgato/streamdeck";
-import { formatElapsed } from "../active-task/elapsed";
+import { action } from "@elgato/streamdeck";
 import { renderStateImage } from "../../key-image/state-image";
+import type { KeyDisplay } from "../../polling-key/poller";
+import { PollingKeyAction } from "../../polling-key/polling-key-action";
+import { formatElapsed } from "../active-task/elapsed";
 import { chooseTurnToDisplay, elapsedOf, isInProgress } from "../active-task/turn-state";
 import { readTurnState } from "../active-task/turn-store";
 
@@ -9,41 +11,19 @@ const IDLE_COLOR = "#3a3a42";
 const WORKING_COLOR = "#2f6fed";
 
 @action({ UUID: "com.ahmedavais.toolkit.claude.active-task" })
-export class ActiveTask extends SingletonAction {
-	private timer: NodeJS.Timeout | undefined;
-
-	override onWillAppear(ev: WillAppearEvent): void {
-		if (!ev.action.isKey()) return;
-
-		this.refresh(ev.action);
-
-		if (!this.timer) {
-			this.timer = setInterval(() => {
-				for (const visibleAction of this.actions) {
-					if (visibleAction.isKey()) this.refresh(visibleAction);
-				}
-			}, TICK_INTERVAL_MS);
-		}
+export class ActiveTask extends PollingKeyAction {
+	constructor() {
+		super({ name: "active task", everyMs: TICK_INTERVAL_MS });
 	}
 
-	override onWillDisappear(_ev: WillDisappearEvent): void {
-		if (this.actions.next().done) {
-			clearInterval(this.timer);
-			this.timer = undefined;
-		}
-	}
-
-	private refresh(action: KeyAction): void {
+	protected override async check(): Promise<KeyDisplay> {
 		const displayed = chooseTurnToDisplay(readTurnState());
-
-		if (!displayed) {
-			action.setTitle("");
-			action.setImage(renderStateImage(IDLE_COLOR));
-			return;
-		}
+		if (!displayed) return { title: "", image: renderStateImage(IDLE_COLOR) };
 
 		const { turn } = displayed;
-		action.setTitle(formatElapsed(elapsedOf(turn, Date.now())));
-		action.setImage(renderStateImage(isInProgress(turn) ? WORKING_COLOR : IDLE_COLOR));
+		return {
+			title: formatElapsed(elapsedOf(turn, Date.now())),
+			image: renderStateImage(isInProgress(turn) ? WORKING_COLOR : IDLE_COLOR),
+		};
 	}
 }
