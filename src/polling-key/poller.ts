@@ -19,10 +19,7 @@ export class Poller {
 	) {}
 
 	async keyAppeared(): Promise<void> {
-		if (!this.polling) {
-			this.polling = true;
-			this.timer.start(this.options.everyMs, () => this.pollNow());
-		}
+		this.startTimerUnlessRunning();
 		await this.pollNow();
 	}
 
@@ -33,5 +30,12 @@ export class Poller {
 
 	async pollNow(): Promise<void> {
 		this.options.show((await this.options.check()) as KeyDisplay);
+	}
+
+	private startTimerUnlessRunning(): void {
+		if (this.polling) return;
+
+		this.polling = true;
+		this.timer.start(this.options.everyMs, () => this.pollNow());
 	}
 }
