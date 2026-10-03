@@ -50,6 +50,14 @@ test("ending a session removes its file", () => {
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-b.json": { turnStartedAt: 2_000 } });
 });
 
+test("ending an unknown session does nothing", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	endSession(sessionsDir, "never-started");
+
+	assert.deepEqual(sessionFiles(sessionsDir), {});
+});
+
 function temporarySessionsDir() {
 	return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-sessions-")), "sessions");
 }

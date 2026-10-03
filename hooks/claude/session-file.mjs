@@ -14,7 +14,7 @@ export function endTurn(sessionsDir, sessionId, now) {
 }
 
 export function endSession(sessionsDir, sessionId) {
-	fs.rmSync(sessionFile(sessionsDir, sessionId));
+	fs.rmSync(sessionFile(sessionsDir, sessionId), { force: true });
 }
 
 function writeTurn(sessionsDir, sessionId, turn) {
