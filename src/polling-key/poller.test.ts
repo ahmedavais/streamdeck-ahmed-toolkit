@@ -32,6 +32,17 @@ test("keeps a single timer when more keys appear", async () => {
 	assert.deepEqual(timerEvents.data, [{ started: { everyMs: 45_000 } }]);
 });
 
+test("shows what the check finds on every tick", async () => {
+	let checks = 0;
+	const { poller, timer, shown } = createPoller({ check: async () => ({ image: `check ${++checks}` }) });
+	await poller.keyAppeared();
+
+	await timer.simulateTick();
+	await timer.simulateTick();
+
+	assert.deepEqual(shown, [{ image: "check 1" }, { image: "check 2" }, { image: "check 3" }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,

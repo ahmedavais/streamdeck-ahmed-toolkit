@@ -21,8 +21,12 @@ export class Poller {
 	async keyAppeared(): Promise<void> {
 		if (!this.polling) {
 			this.polling = true;
-			this.timer.start(this.options.everyMs, () => {});
+			this.timer.start(this.options.everyMs, () => this.poll());
 		}
+		await this.poll();
+	}
+
+	private async poll(): Promise<void> {
 		this.options.show((await this.options.check()) as KeyDisplay);
 	}
 }
