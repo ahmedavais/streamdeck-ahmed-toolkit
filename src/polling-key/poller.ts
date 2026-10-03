@@ -27,6 +27,7 @@ export class Poller {
 	}
 
 	lastKeyGone(): void {
+		this.polling = false;
 		this.timer.stop();
 	}
 

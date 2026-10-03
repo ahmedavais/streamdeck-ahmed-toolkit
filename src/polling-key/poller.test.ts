@@ -52,6 +52,16 @@ test("stops the timer once the last key is gone", async () => {
 	assert.deepEqual(timerEvents.data, [{ started: { everyMs: 45_000 } }, { stopped: true }]);
 });
 
+test("starts again when a key reappears", async () => {
+	const { poller, timerEvents } = createPoller({ everyMs: 45_000 });
+	await poller.keyAppeared();
+	poller.lastKeyGone();
+
+	await poller.keyAppeared();
+
+	assert.deepEqual(timerEvents.data, [{ started: { everyMs: 45_000 } }, { stopped: true }, { started: { everyMs: 45_000 } }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,
