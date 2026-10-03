@@ -28,3 +28,13 @@ test("shows the last reading greyed out when the probe fails", async () => {
 
 	assert.deepEqual(display, { image: renderGaugeImage({ usage: 0.42 }, "stale") });
 });
+
+test("returns to colour when the probe recovers", async () => {
+	const reading = new UsageReading(RateLimitClient.createNull([{ usage: 0.42 }, { unavailable: true }, { usage: 0.5 }]));
+	await reading.currentDisplay();
+	await reading.currentDisplay();
+
+	const display = await reading.currentDisplay();
+
+	assert.deepEqual(display, { image: renderGaugeImage({ usage: 0.5 }, "fresh") });
+});
