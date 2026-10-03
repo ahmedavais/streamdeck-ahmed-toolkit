@@ -13,9 +13,8 @@ export class RateLimitClient {
 		return new RateLimitClient(HttpClient.create(), ClaudeCredentials.create(), Log.create());
 	}
 
-	static createNull(reading?: NulledReading): RateLimitClient {
-		const http = reading ? HttpClient.createNull(probeResponseReporting(reading)) : HttpClient.createNull();
-		return new RateLimitClient(http, ClaudeCredentials.createNull(), Log.createNull());
+	static createNull(readings?: NulledReading | NulledReading[]): RateLimitClient {
+		return new RateLimitClient(HttpClient.createNull(probeResponsesReporting(readings)), ClaudeCredentials.createNull(), Log.createNull());
 	}
 
 	constructor(
@@ -70,6 +69,11 @@ function probeRequestWith(accessToken: string): HttpRequest {
 			messages: [{ role: "user", content: "." }],
 		}),
 	};
+}
+
+function probeResponsesReporting(readings: NulledReading | NulledReading[] | undefined): NulledHttpResponse | NulledHttpResponse[] | undefined {
+	if (readings === undefined) return undefined;
+	return Array.isArray(readings) ? readings.map(probeResponseReporting) : probeResponseReporting(readings);
 }
 
 function probeResponseReporting(reading: NulledReading): NulledHttpResponse {
