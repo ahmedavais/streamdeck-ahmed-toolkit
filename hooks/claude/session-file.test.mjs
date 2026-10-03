@@ -3,7 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { endSession, endTurn, startTurn } from "./session-file.mjs";
+import { readTurnState, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/active-task/turn-store.ts";
+import { endSession, endTurn, SESSIONS_DIR, startTurn } from "./session-file.mjs";
 
 test("starting a turn records when it started", () => {
 	const sessionsDir = temporarySessionsDir();
@@ -65,6 +66,23 @@ test("leaves no draft files behind", () => {
 	endTurn(sessionsDir, "session-a", 4_000);
 
 	assert.deepEqual(fs.readdirSync(sessionsDir), ["session-a.json"]);
+});
+
+test("the hooks write where the plugin reads", () => {
+	assert.equal(SESSIONS_DIR, PLUGIN_SESSIONS_DIR);
+});
+
+test("the plugin reads the turns the hooks write", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	startTurn(sessionsDir, "session-a", 1_000);
+	endTurn(sessionsDir, "session-a", 4_000);
+	startTurn(sessionsDir, "session-b", 2_000);
+
+	assert.deepEqual(readTurnState(sessionsDir), {
+		"session-a": { turnStartedAt: 1_000, turnEndedAt: 4_000 },
+		"session-b": { turnStartedAt: 2_000 },
+	});
 });
 
 function temporarySessionsDir() {
