@@ -16,3 +16,14 @@ test("calls back on every interval until stopped", async () => {
 	assert.ok(ticksWhenStopped >= 2, `expected several ticks, got ${ticksWhenStopped}`);
 	assert.equal(ticks, ticksWhenStopped, "shouldn't tick after stopping");
 });
+
+test("a nulled timer never fires on its own", async () => {
+	const timer = IntervalTimer.createNull();
+	let ticks = 0;
+
+	timer.start(1, () => ticks++);
+	await wait(20);
+	timer.stop();
+
+	assert.equal(ticks, 0);
+});
