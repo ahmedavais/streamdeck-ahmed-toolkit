@@ -22,6 +22,16 @@ test("formats a fraction as a rounded whole-number percentage", () => {
 });
 
 test("renders a data-uri image without throwing", () => {
-	const image = renderGaugeImage({ usage: 0.17 });
+	const image = renderGaugeImage({ usage: 0.17 }, "fresh");
 	assert.match(image, /^data:image\/svg\+xml;base64,/);
 });
+
+test("a stale reading renders the same percentage in grey", () => {
+	const svg = svgOf(renderGaugeImage({ usage: 0.9 }, "stale"));
+
+	assert.match(svg, /fill="#6b6b73"[^>]*>90%</);
+});
+
+function svgOf(dataUri: string): string {
+	return Buffer.from(dataUri.replace("data:image/svg+xml;base64,", ""), "base64").toString("utf8");
+}
