@@ -4,9 +4,11 @@ import type { Log } from "../infrastructure/log";
 export type KeyDisplay = { title?: string; image: string };
 
 export type PollingOptions = {
+	name: string;
 	everyMs: number;
 	check: () => Promise<KeyDisplay | undefined>;
 	show: (display: KeyDisplay) => void;
+	failedDisplay?: KeyDisplay;
 };
 
 export class Poller {
@@ -36,6 +38,9 @@ export class Poller {
 		try {
 			const display = await this.options.check();
 			if (display) this.options.show(display);
+		} catch (failure) {
+			this.log.error(`Could not refresh ${this.options.name}: ${(failure as Error).message}`);
+			this.options.show(this.options.failedDisplay as KeyDisplay);
 		} finally {
 			this.checkInFlight = false;
 		}

@@ -100,16 +100,33 @@ test("skips a poll while the previous one is still in flight", async () => {
 	assert.deepEqual(shown, [{ image: "slow answer" }]);
 });
 
+test("logs a failed check and shows the failure display", async () => {
+	const { poller, shown, logOutput } = createPoller({
+		name: "MCP status",
+		check: async () => {
+			throw new Error("claude CLI not found");
+		},
+		failedDisplay: { title: "?", image: "grey" },
+	});
+
+	await poller.keyAppeared();
+
+	assert.deepEqual(logOutput.data, [{ level: "error", message: "Could not refresh MCP status: claude CLI not found" }]);
+	assert.deepEqual(shown, [{ title: "?", image: "grey" }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,
+	name = "irrelevant key",
+	failedDisplay = undefined as KeyDisplay | undefined,
 } = {}) {
 	const timer = IntervalTimer.createNull();
 	const timerEvents = timer.trackEvents();
 	const log = Log.createNull();
 	const logOutput = log.trackOutput();
 	const shown: KeyDisplay[] = [];
-	const poller = new Poller(timer, log, { everyMs, check, show: (display) => shown.push(display) });
+	const poller = new Poller(timer, log, { name, everyMs, check, failedDisplay, show: (display) => shown.push(display) });
 
 	return { poller, timer, timerEvents, logOutput, shown };
 }
