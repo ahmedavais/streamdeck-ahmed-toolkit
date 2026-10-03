@@ -26,6 +26,10 @@ export class Poller {
 		await this.poll();
 	}
 
+	lastKeyGone(): void {
+		this.timer.stop();
+	}
+
 	private async poll(): Promise<void> {
 		this.options.show((await this.options.check()) as KeyDisplay);
 	}

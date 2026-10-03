@@ -43,6 +43,15 @@ test("shows what the check finds on every tick", async () => {
 	assert.deepEqual(shown, [{ image: "check 1" }, { image: "check 2" }, { image: "check 3" }]);
 });
 
+test("stops the timer once the last key is gone", async () => {
+	const { poller, timerEvents } = createPoller({ everyMs: 45_000 });
+	await poller.keyAppeared();
+
+	poller.lastKeyGone();
+
+	assert.deepEqual(timerEvents.data, [{ started: { everyMs: 45_000 } }, { stopped: true }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,
