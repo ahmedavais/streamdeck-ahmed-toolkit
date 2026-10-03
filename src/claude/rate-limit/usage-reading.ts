@@ -10,11 +10,9 @@ export class UsageReading {
 
 	async currentDisplay(): Promise<KeyDisplay | undefined> {
 		const snapshot = await this.rateLimit.fetchSnapshot();
-		if (snapshot) {
-			this.lastSnapshot = snapshot;
-			return { image: renderGaugeImage(snapshot, "fresh") };
-		}
+		this.lastSnapshot = snapshot ?? this.lastSnapshot;
+		if (!this.lastSnapshot) return undefined;
 
-		return this.lastSnapshot ? { image: renderGaugeImage(this.lastSnapshot, "stale") } : undefined;
+		return { image: renderGaugeImage(this.lastSnapshot, snapshot ? "fresh" : "stale") };
 	}
 }
