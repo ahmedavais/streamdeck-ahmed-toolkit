@@ -58,6 +58,15 @@ test("ending an unknown session does nothing", () => {
 	assert.deepEqual(sessionFiles(sessionsDir), {});
 });
 
+test("leaves no draft files behind", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	startTurn(sessionsDir, "session-a", 1_000);
+	endTurn(sessionsDir, "session-a", 4_000);
+
+	assert.deepEqual(fs.readdirSync(sessionsDir), ["session-a.json"]);
+});
+
 function temporarySessionsDir() {
 	return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-sessions-")), "sessions");
 }
