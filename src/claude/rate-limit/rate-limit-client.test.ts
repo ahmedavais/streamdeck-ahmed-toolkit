@@ -83,6 +83,12 @@ test("reports nothing and logs why when the probe fails with another status", as
 	assert.deepEqual(logOutput.data, [{ level: "error", message: "Claude Code rate-limit probe failed with status 529" }]);
 });
 
+test("a nulled client reports the configured usage", async () => {
+	const client = RateLimitClient.createNull({ usage: 0.42 });
+
+	assert.deepEqual(await client.fetchSnapshot(), { usage: 0.42 });
+});
+
 async function fetchSnapshot({
 	credentials = { accessToken: "irrelevant token" } as NulledCredentials | NulledCredentials[],
 	httpResponses = IRRELEVANT_RESPONSE as NulledHttpResponse | NulledHttpResponse[],

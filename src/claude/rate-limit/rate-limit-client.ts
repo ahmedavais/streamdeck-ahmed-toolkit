@@ -1,4 +1,4 @@
-import { HttpClient, type HttpRequest, type HttpResponse } from "../../infrastructure/http-client";
+import { HttpClient, type HttpRequest, type HttpResponse, type NulledHttpResponse } from "../../infrastructure/http-client";
 import { Log } from "../../infrastructure/log";
 import { ClaudeCredentials } from "./claude-credentials";
 import { parseSnapshot, RateLimitSnapshot } from "./parse-snapshot";
@@ -9,6 +9,11 @@ const PROBE_MODEL = "claude-haiku-4-5-20251001";
 export class RateLimitClient {
 	static create(): RateLimitClient {
 		return new RateLimitClient(HttpClient.create(), ClaudeCredentials.create(), Log.create());
+	}
+
+	static createNull(reading?: RateLimitSnapshot): RateLimitClient {
+		const http = reading ? HttpClient.createNull(probeResponseReporting(reading)) : HttpClient.createNull();
+		return new RateLimitClient(http, ClaudeCredentials.createNull(), Log.createNull());
 	}
 
 	constructor(
@@ -63,4 +68,8 @@ function probeRequestWith(accessToken: string): HttpRequest {
 			messages: [{ role: "user", content: "." }],
 		}),
 	};
+}
+
+function probeResponseReporting({ usage }: RateLimitSnapshot): NulledHttpResponse {
+	return { status: 200, headers: { "anthropic-ratelimit-unified-7d-utilization": String(usage) }, body: "{}" };
 }
