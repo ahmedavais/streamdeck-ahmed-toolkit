@@ -36,14 +36,22 @@ export class Poller {
 
 		this.checkInFlight = true;
 		try {
-			const display = await this.options.check();
-			if (display) this.options.show(display);
+			await this.showWhatCheckFinds();
 		} catch (failure) {
-			this.log.error(`Could not refresh ${this.options.name}: ${(failure as Error).message}`);
-			if (this.options.failedDisplay) this.options.show(this.options.failedDisplay);
+			this.reportFailed(failure as Error);
 		} finally {
 			this.checkInFlight = false;
 		}
+	}
+
+	private async showWhatCheckFinds(): Promise<void> {
+		const display = await this.options.check();
+		if (display) this.options.show(display);
+	}
+
+	private reportFailed(failure: Error): void {
+		this.log.error(`Could not refresh ${this.options.name}: ${failure.message}`);
+		if (this.options.failedDisplay) this.options.show(this.options.failedDisplay);
 	}
 
 	private startTimerUnlessRunning(): void {
