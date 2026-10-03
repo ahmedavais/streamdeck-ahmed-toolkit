@@ -11,6 +11,7 @@ export type PollingOptions = {
 
 export class Poller {
 	private polling = false;
+	private checkInFlight = false;
 
 	constructor(
 		private readonly timer: IntervalTimer,
@@ -29,8 +30,15 @@ export class Poller {
 	}
 
 	async pollNow(): Promise<void> {
-		const display = await this.options.check();
-		if (display) this.options.show(display);
+		if (this.checkInFlight) return;
+
+		this.checkInFlight = true;
+		try {
+			const display = await this.options.check();
+			if (display) this.options.show(display);
+		} finally {
+			this.checkInFlight = false;
+		}
 	}
 
 	private startTimerUnlessRunning(): void {

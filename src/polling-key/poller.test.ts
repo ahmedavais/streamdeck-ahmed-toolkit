@@ -80,6 +80,26 @@ test("shows nothing when the check finds nothing", async () => {
 	assert.deepEqual(shown, []);
 });
 
+test("skips a poll while the previous one is still in flight", async () => {
+	let checks = 0;
+	let finishSlowCheck: (display: KeyDisplay) => void = () => {};
+	const slowCheck = new Promise<KeyDisplay>((resolve) => (finishSlowCheck = resolve));
+	const { poller, shown } = createPoller({
+		check: () => {
+			checks++;
+			return slowCheck;
+		},
+	});
+	const firstPoll = poller.pollNow();
+
+	const overlappingPoll = poller.pollNow();
+	finishSlowCheck({ image: "slow answer" });
+	await Promise.all([firstPoll, overlappingPoll]);
+
+	assert.equal(checks, 1);
+	assert.deepEqual(shown, [{ image: "slow answer" }]);
+});
+
 function createPoller({
 	check = async (): Promise<KeyDisplay | undefined> => IRRELEVANT_DISPLAY,
 	everyMs = IRRELEVANT_INTERVAL_MS,
