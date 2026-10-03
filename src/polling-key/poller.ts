@@ -16,7 +16,7 @@ export class Poller {
 		return new Poller(IntervalTimer.create(), Log.create(), options);
 	}
 
-	private polling = false;
+	private timerRunning = false;
 	private checkInFlight = false;
 
 	constructor(
@@ -31,7 +31,7 @@ export class Poller {
 	}
 
 	lastKeyGone(): void {
-		this.polling = false;
+		this.timerRunning = false;
 		this.timer.stop();
 	}
 
@@ -59,9 +59,9 @@ export class Poller {
 	}
 
 	private startTimerUnlessRunning(): void {
-		if (this.polling) return;
+		if (this.timerRunning) return;
 
-		this.polling = true;
+		this.timerRunning = true;
 		this.timer.start(this.options.everyMs, () => this.pollNow());
 	}
 }
