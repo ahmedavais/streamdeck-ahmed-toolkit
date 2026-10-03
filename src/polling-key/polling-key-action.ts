@@ -1,11 +1,7 @@
 import { SingletonAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
-import { Poller, type KeyDisplay } from "./poller";
+import { Poller, type KeyDisplay, type PollingOptions } from "./poller";
 
-export type PollingKeySettings = {
-	name: string;
-	everyMs: number;
-	failedDisplay?: KeyDisplay;
-};
+export type PollingKeySettings = Omit<PollingOptions, "check" | "show">;
 
 export abstract class PollingKeyAction extends SingletonAction {
 	private readonly poller: Poller;
