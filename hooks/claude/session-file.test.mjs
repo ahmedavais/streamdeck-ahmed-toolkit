@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { readTurnState, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/active-task/turn-store.ts";
 import { endSession, endTurn, SESSIONS_DIR, startTurn } from "./session-file.mjs";
 
@@ -84,6 +86,24 @@ test("the plugin reads the turns the hooks write", () => {
 		"session-b": { turnStartedAt: 2_000 },
 	});
 });
+
+test("concurrent sessions keep their own turns", async () => {
+	const home = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-home-"));
+	const sessionIds = Array.from({ length: 20 }, (_, index) => `session-${index}`);
+
+	await Promise.all(sessionIds.map((sessionId) => runHook("turn-started.mjs", { session_id: sessionId }, home)));
+
+	const sessionsDir = path.join(home, ".streamdeck-ahmed-toolkit", "sessions");
+	assert.deepEqual(Object.keys(sessionFiles(sessionsDir)).sort(), sessionIds.map((sessionId) => `${sessionId}.json`).sort());
+});
+
+function runHook(script, input, home) {
+	const scriptPath = fileURLToPath(new URL(script, import.meta.url));
+	return new Promise((resolve, reject) => {
+		const child = execFile("node", [scriptPath], { env: { ...process.env, HOME: home } }, (failure) => (failure ? reject(failure) : resolve()));
+		child.stdin.end(JSON.stringify(input));
+	});
+}
 
 function temporarySessionsDir() {
 	return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-sessions-")), "sessions");

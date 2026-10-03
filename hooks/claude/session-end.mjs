@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-import { readState, readStdin, writeState } from "./state-file.mjs";
+import { readHookInput } from "./hook-input.mjs";
+import { endSession, SESSIONS_DIR } from "./session-file.mjs";
 
-const input = JSON.parse(await readStdin());
-const state = readState();
-delete state[input.session_id];
-writeState(state);
+const { session_id } = await readHookInput();
+endSession(SESSIONS_DIR, session_id);

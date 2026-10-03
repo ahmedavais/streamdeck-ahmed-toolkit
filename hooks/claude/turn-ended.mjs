@@ -1,10 +1,6 @@
 #!/usr/bin/env node
-import { readState, readStdin, writeState } from "./state-file.mjs";
+import { readHookInput } from "./hook-input.mjs";
+import { endTurn, SESSIONS_DIR } from "./session-file.mjs";
 
-const input = JSON.parse(await readStdin());
-const state = readState();
-const turn = state[input.session_id];
-if (!turn) process.exit(0);
-
-turn.turnEndedAt = Date.now();
-writeState(state);
+const { session_id } = await readHookInput();
+endTurn(SESSIONS_DIR, session_id, Date.now());

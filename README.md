@@ -26,7 +26,7 @@ Stream Deck picks up the linked plugin. You'll find the actions under "Ahmed's T
 
 ## Claude Code hooks
 
-Active Task reads turn timings that three Claude Code hooks write to `~/.streamdeck-ahmed-toolkit/session-turns.json`. Add them to `~/.claude/settings.json`, replacing `/path/to` with where you cloned this repo:
+Active Task reads turn timings that three Claude Code hooks write to `~/.streamdeck-ahmed-toolkit/sessions/`, one file per session. Add them to `~/.claude/settings.json`, replacing `/path/to` with where you cloned this repo:
 
 ```json
 {
@@ -44,12 +44,12 @@ Active Task reads turn timings that three Claude Code hooks write to `~/.streamd
 }
 ```
 
-`turn-started` records when you submit a prompt, `turn-ended` records when Claude stops, and `session-end` removes the session.
+`turn-started` records when you submit a prompt, `turn-ended` records when Claude stops, and `session-end` removes the session's file. Each session's hooks write only that session's file, replacing it in one rename, so concurrent sessions can't overwrite each other and the plugin never reads half a file.
 
 ## How it works
 
 ```
-Claude Code hooks ──writes──► ~/.streamdeck-ahmed-toolkit/session-turns.json ◄──reads── Active Task
+Claude Code hooks ──writes──► ~/.streamdeck-ahmed-toolkit/sessions/<id>.json ◄──reads── Active Task
 
 Usage Gauge ──► Keychain "Claude Code-credentials" ──► one-token Haiku request ──► rate-limit headers
 MCP Status  ──► claude mcp list

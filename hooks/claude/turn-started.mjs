@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-import { readState, readStdin, writeState } from "./state-file.mjs";
+import { readHookInput } from "./hook-input.mjs";
+import { SESSIONS_DIR, startTurn } from "./session-file.mjs";
 
-const input = JSON.parse(await readStdin());
-const state = readState();
-state[input.session_id] = { turnStartedAt: Date.now() };
-writeState(state);
+const { session_id } = await readHookInput();
+startTurn(SESSIONS_DIR, session_id, Date.now());
