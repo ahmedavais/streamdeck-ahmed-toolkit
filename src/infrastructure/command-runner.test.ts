@@ -19,3 +19,11 @@ test("returns the output and exit code of a command that fails", async () => {
 
 	assert.deepEqual(result, { stdout: "partial", exitCode: 3, timedOut: false });
 });
+
+test("returns the partial output of a command that runs past its timeout", async () => {
+	const runner = CommandRunner.create();
+
+	const result = await runner.run(process.execPath, ["-e", "process.stdout.write('slow start'); setTimeout(() => {}, 10_000)"], 300);
+
+	assert.deepEqual(result, { stdout: "slow start", exitCode: null, timedOut: true });
+});

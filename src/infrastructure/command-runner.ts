@@ -3,7 +3,7 @@ import { promisify } from "node:util";
 
 export type CommandResult = { stdout: string; exitCode: number | null; timedOut: boolean };
 
-type ProcessFailure = Error & { code?: number | string; stdout?: string };
+type ProcessFailure = Error & { code?: number | string | null; killed?: boolean; stdout?: string };
 
 const runProcess = promisify(execFile);
 
@@ -17,8 +17,8 @@ export class CommandRunner {
 			const { stdout } = await runProcess(command, args, { encoding: "utf8", timeout: timeoutMs });
 			return { stdout, exitCode: 0, timedOut: false };
 		} catch (failure) {
-			const { code, stdout = "" } = failure as ProcessFailure;
-			return { stdout, exitCode: code as number, timedOut: false };
+			const { code, killed = false, stdout = "" } = failure as ProcessFailure;
+			return { stdout, exitCode: code as number | null, timedOut: killed };
 		}
 	}
 }
