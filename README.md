@@ -10,8 +10,8 @@ Custom Stream Deck actions for macOS. The current set shows live Claude Code sta
 
 ## Requirements
 
-- macOS 10.15 or later and Stream Deck 6.5 or later
-- Node.js 20 or later to build
+- macOS 10.15 or later and Stream Deck 7.1 or later
+- Node.js 24 or later to build
 - Claude Code installed and signed in
 
 ## Install
