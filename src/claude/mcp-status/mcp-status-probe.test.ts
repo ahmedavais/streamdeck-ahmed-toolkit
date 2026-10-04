@@ -25,6 +25,24 @@ test("reads server statuses from a successful listing", async () => {
 	]);
 });
 
+test("reads the servers a failed listing printed before it exited", async () => {
+	const { statuses } = await probe({ listing: { stdout: TWO_SERVERS, exitCode: 1, timedOut: false } });
+
+	assert.deepEqual(statuses, [
+		{ name: "idea", health: "connected" },
+		{ name: "claude.ai Asana", health: "needs-authentication" },
+	]);
+});
+
+test("reads the servers a timed-out listing printed before it was stopped", async () => {
+	const { statuses } = await probe({ listing: { stdout: TWO_SERVERS, exitCode: null, timedOut: true } });
+
+	assert.deepEqual(statuses, [
+		{ name: "idea", health: "connected" },
+		{ name: "claude.ai Asana", health: "needs-authentication" },
+	]);
+});
+
 test("fails clearly when the listing exits with no output", async () => {
 	await assert.rejects(probe({ listing: { stdout: "", exitCode: 1, timedOut: false } }), {
 		message: "claude mcp list exited with code 1 and printed nothing",
