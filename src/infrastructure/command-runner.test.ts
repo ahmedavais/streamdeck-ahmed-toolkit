@@ -27,3 +27,11 @@ test("returns the partial output of a command that runs past its timeout", async
 
 	assert.deepEqual(result, { stdout: "slow start", exitCode: null, timedOut: true });
 });
+
+test("fails, naming the command, when it can't be started", async () => {
+	const runner = CommandRunner.create();
+
+	await assert.rejects(runner.run("/no/such/command", [], IRRELEVANT_TIMEOUT_MS), {
+		message: "Could not run /no/such/command: spawn /no/such/command ENOENT",
+	});
+});

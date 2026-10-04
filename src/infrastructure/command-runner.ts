@@ -18,6 +18,7 @@ export class CommandRunner {
 			return { stdout, exitCode: 0, timedOut: false };
 		} catch (failure) {
 			const { code, killed = false, stdout = "" } = failure as ProcessFailure;
+			if (typeof code === "string") throw new Error(`Could not run ${command}: ${(failure as Error).message}`, { cause: failure });
 			return { stdout, exitCode: code as number | null, timedOut: killed };
 		}
 	}
