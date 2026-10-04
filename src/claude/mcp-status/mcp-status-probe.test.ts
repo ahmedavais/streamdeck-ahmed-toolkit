@@ -45,13 +45,19 @@ test("reads the servers a timed-out listing printed before it was stopped", asyn
 
 test("fails clearly when the listing exits with no output", async () => {
 	await assert.rejects(probe({ listing: { stdout: "", exitCode: 1, timedOut: false } }), {
-		message: "claude mcp list exited with code 1 and printed nothing",
+		message: "claude mcp list exited with code 1 and printed no servers",
 	});
 });
 
 test("fails clearly when the listing times out with no output", async () => {
 	await assert.rejects(probe({ listing: { stdout: "", exitCode: null, timedOut: true } }), {
-		message: "claude mcp list printed nothing before timing out after 40s",
+		message: "claude mcp list printed no servers before timing out after 40s",
+	});
+});
+
+test("fails clearly when the listing times out after printing only its header", async () => {
+	await assert.rejects(probe({ listing: { stdout: "Checking MCP server health…\n\n", exitCode: null, timedOut: true } }), {
+		message: "claude mcp list printed no servers before timing out after 40s",
 	});
 });
 

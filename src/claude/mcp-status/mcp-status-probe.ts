@@ -16,13 +16,14 @@ export class McpStatusProbe {
 
 	async serverStatuses(): Promise<ServerStatus[]> {
 		const listing = await this.runner.run(this.locateCli(), ["mcp", "list"], PROBE_TIMEOUT_MS);
-		if (listing.exitCode !== 0 && listing.stdout.length === 0) throw new Error(emptyListingFailure(listing));
+		const statuses = parseServerStatuses(listing.stdout);
+		if (listing.exitCode !== 0 && statuses.length === 0) throw new Error(emptyListingFailure(listing));
 
-		return parseServerStatuses(listing.stdout);
+		return statuses;
 	}
 }
 
 function emptyListingFailure({ exitCode, timedOut }: CommandResult): string {
-	if (timedOut) return `claude mcp list printed nothing before timing out after ${PROBE_TIMEOUT_MS / 1000}s`;
-	return `claude mcp list exited with code ${exitCode} and printed nothing`;
+	if (timedOut) return `claude mcp list printed no servers before timing out after ${PROBE_TIMEOUT_MS / 1000}s`;
+	return `claude mcp list exited with code ${exitCode} and printed no servers`;
 }
