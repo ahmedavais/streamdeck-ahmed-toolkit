@@ -31,6 +31,12 @@ test("fails clearly when the listing exits with no output", async () => {
 	});
 });
 
+test("fails clearly when the listing times out with no output", async () => {
+	await assert.rejects(probe({ listing: { stdout: "", exitCode: null, timedOut: true } }), {
+		message: "claude mcp list printed nothing before timing out after 40s",
+	});
+});
+
 async function probe({ cli = "/irrelevant/claude", listing = IRRELEVANT_LISTING } = {}) {
 	const runner = CommandRunner.createNull(listing);
 	const commands = runner.trackCommands();
