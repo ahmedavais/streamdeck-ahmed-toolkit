@@ -5,7 +5,7 @@
 	"scripts": {
 		"build": "rollup -c",
 		"watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.ahmedavais.toolkit\"",
-		"test": "tsx --test 'src/**/*.test.ts' 'hooks/**/*.test.mjs'"
+		"test": "tsx --test $(find src hooks -name '*.test.ts' -o -name '*.test.mjs')"
 	},
 	"type": "module",
 	"devDependencies": {
