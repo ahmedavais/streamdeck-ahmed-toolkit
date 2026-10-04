@@ -47,3 +47,11 @@ test("a nulled runner starts no processes", async () => {
 
 	assert.equal(fs.existsSync(marker), false);
 });
+
+test("a nulled runner answers with an obviously fake default", async () => {
+	const runner = CommandRunner.createNull();
+
+	const result = await runner.run("anything", [], IRRELEVANT_TIMEOUT_MS);
+
+	assert.deepEqual(result, { stdout: "Nulled CommandRunner default output", exitCode: 0, timedOut: false });
+});

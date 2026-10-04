@@ -31,5 +31,5 @@ export class CommandRunner {
 }
 
 async function stubbedRunProcess(): Promise<{ stdout: string }> {
-	return { stdout: "" };
+	return { stdout: "Nulled CommandRunner default output" };
 }
