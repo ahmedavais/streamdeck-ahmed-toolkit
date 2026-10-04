@@ -32,6 +32,9 @@ export class McpStatusProbe {
 
 	async serverStatuses(): Promise<ServerStatus[]> {
 		const listing = await this.runner.run(this.locateCli(), ["mcp", "list"], PROBE_TIMEOUT_MS);
+		if (listing.exitCode !== 0 && listing.stdout.length === 0) {
+			throw new Error(`claude mcp list exited with code ${listing.exitCode} and printed nothing`);
+		}
 		return parseServerStatuses(listing.stdout);
 	}
 }

@@ -25,6 +25,12 @@ test("reads server statuses from a successful listing", async () => {
 	]);
 });
 
+test("fails clearly when the listing exits with no output", async () => {
+	await assert.rejects(probe({ listing: { stdout: "", exitCode: 1, timedOut: false } }), {
+		message: "claude mcp list exited with code 1 and printed nothing",
+	});
+});
+
 async function probe({ cli = "/irrelevant/claude", listing = IRRELEVANT_LISTING } = {}) {
 	const runner = CommandRunner.createNull(listing);
 	const commands = runner.trackCommands();
