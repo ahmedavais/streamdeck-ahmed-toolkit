@@ -55,3 +55,23 @@ test("a nulled runner answers with an obviously fake default", async () => {
 
 	assert.deepEqual(result, { stdout: "Nulled CommandRunner default output", exitCode: 0, timedOut: false });
 });
+
+test("a nulled runner answers configured results in order", async () => {
+	const runner = CommandRunner.createNull([
+		{ stdout: "first", exitCode: 0, timedOut: false },
+		{ stdout: "partial", exitCode: 1, timedOut: false },
+		{ stdout: "slow", exitCode: null, timedOut: true },
+	]);
+
+	const results = [
+		await runner.run("anything", [], IRRELEVANT_TIMEOUT_MS),
+		await runner.run("anything", [], IRRELEVANT_TIMEOUT_MS),
+		await runner.run("anything", [], IRRELEVANT_TIMEOUT_MS),
+	];
+
+	assert.deepEqual(results, [
+		{ stdout: "first", exitCode: 0, timedOut: false },
+		{ stdout: "partial", exitCode: 1, timedOut: false },
+		{ stdout: "slow", exitCode: null, timedOut: true },
+	]);
+});

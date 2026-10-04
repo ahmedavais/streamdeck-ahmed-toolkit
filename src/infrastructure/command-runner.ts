@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { ConfigurableResponses } from "./configurable-responses";
 
 export type CommandResult = { stdout: string; exitCode: number | null; timedOut: boolean };
 
@@ -12,8 +13,8 @@ export class CommandRunner {
 		return new CommandRunner(promisify(execFile));
 	}
 
-	static createNull(): CommandRunner {
-		return new CommandRunner(stubbedRunProcess);
+	static createNull(results: CommandResult | CommandResult[] = DEFAULT_NULLED_RESULT): CommandRunner {
+		return new CommandRunner(stubbedRunProcess(ConfigurableResponses.create(results, "nulled CommandRunner")));
 	}
 
 	constructor(private readonly runProcess: RunProcess) {}
@@ -30,6 +31,12 @@ export class CommandRunner {
 	}
 }
 
-async function stubbedRunProcess(): Promise<{ stdout: string }> {
-	return { stdout: "Nulled CommandRunner default output" };
+const DEFAULT_NULLED_RESULT: CommandResult = { stdout: "Nulled CommandRunner default output", exitCode: 0, timedOut: false };
+
+function stubbedRunProcess(results: ConfigurableResponses<CommandResult>): RunProcess {
+	return async () => {
+		const { stdout, exitCode, timedOut } = results.next();
+		if (exitCode === 0) return { stdout };
+		throw Object.assign(new Error("Command failed"), { code: exitCode, killed: timedOut, stdout });
+	};
 }
