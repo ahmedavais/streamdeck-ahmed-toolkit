@@ -75,3 +75,11 @@ test("a nulled runner answers configured results in order", async () => {
 		{ stdout: "slow", exitCode: null, timedOut: true },
 	]);
 });
+
+test("a nulled runner can fail to start a command", async () => {
+	const runner = CommandRunner.createNull({ cannotStart: true });
+
+	await assert.rejects(runner.run("/usr/local/bin/claude", [], IRRELEVANT_TIMEOUT_MS), {
+		message: "Could not run /usr/local/bin/claude: spawn /usr/local/bin/claude ENOENT",
+	});
+});
