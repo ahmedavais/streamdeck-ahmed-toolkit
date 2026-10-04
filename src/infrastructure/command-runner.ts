@@ -1,8 +1,11 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { ConfigurableResponses } from "./configurable-responses";
+import { OutputListener, type OutputTracker } from "./output-listener";
 
 export type CommandResult = { stdout: string; exitCode: number | null; timedOut: boolean };
+
+export type CommandRun = { command: string; args: string[]; timeoutMs: number };
 
 export type NulledCommandResult = CommandResult | { cannotStart: true };
 
@@ -19,9 +22,16 @@ export class CommandRunner {
 		return new CommandRunner(stubbedRunProcess(ConfigurableResponses.create(results, "nulled CommandRunner")));
 	}
 
+	private readonly commands = new OutputListener<CommandRun>();
+
 	constructor(private readonly runProcess: RunProcess) {}
 
+	trackCommands(): OutputTracker<CommandRun> {
+		return this.commands.trackOutput();
+	}
+
 	async run(command: string, args: string[], timeoutMs: number): Promise<CommandResult> {
+		this.commands.emit({ command, args, timeoutMs });
 		try {
 			const { stdout } = await this.runProcess(command, args, { encoding: "utf8", timeout: timeoutMs });
 			return { stdout, exitCode: 0, timedOut: false };

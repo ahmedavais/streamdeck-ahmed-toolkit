@@ -83,3 +83,12 @@ test("a nulled runner can fail to start a command", async () => {
 		message: "Could not run /usr/local/bin/claude: spawn /usr/local/bin/claude ENOENT",
 	});
 });
+
+test("tracks the commands it runs", async () => {
+	const runner = CommandRunner.createNull();
+	const commands = runner.trackCommands();
+
+	await runner.run("/usr/local/bin/claude", ["mcp", "list"], 40_000);
+
+	assert.deepEqual(commands.data, [{ command: "/usr/local/bin/claude", args: ["mcp", "list"], timeoutMs: 40_000 }]);
+});
