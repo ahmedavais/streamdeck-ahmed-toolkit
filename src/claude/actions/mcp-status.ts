@@ -3,7 +3,7 @@ import { Log } from "../../infrastructure/log";
 import { renderStateImage } from "../../key-image/state-image";
 import type { KeyDisplay } from "../../polling-key/poller";
 import { PollingKeyAction } from "../../polling-key/polling-key-action";
-import { probeMcpServers } from "../mcp-status/mcp-status-probe";
+import { McpStatusProbe } from "../mcp-status/mcp-status-probe";
 import type { ServerStatus } from "../mcp-status/server-status";
 import { summarizeServerStatuses, type Severity, type StatusSummary } from "../mcp-status/status-summary";
 
@@ -21,6 +21,7 @@ const COLOR_BY_SEVERITY: Record<Severity, string> = {
 @action({ UUID: "com.ahmedavais.toolkit.claude.mcp-status" })
 export class McpStatus extends PollingKeyAction {
 	private readonly log = Log.create();
+	private readonly probe = McpStatusProbe.create();
 
 	constructor() {
 		super({ name: "MCP status", everyMs: POLL_INTERVAL_MS, failedDisplay: displayFor(UNREACHABLE) });
@@ -33,7 +34,7 @@ export class McpStatus extends PollingKeyAction {
 	}
 
 	protected override async check(): Promise<KeyDisplay> {
-		const statuses = await probeMcpServers();
+		const statuses = await this.probe.serverStatuses();
 		this.report(statuses);
 		return displayFor(summarizeServerStatuses(statuses));
 	}
