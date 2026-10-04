@@ -36,11 +36,16 @@ export class CommandRunner {
 			const { stdout } = await this.runProcess(command, args, { encoding: "utf8", timeout: timeoutMs });
 			return { stdout, exitCode: 0, timedOut: false };
 		} catch (failure) {
-			const { code, killed = false, stdout = "" } = failure as ProcessFailure;
-			if (typeof code === "string") throw new Error(`Could not run ${command}: ${(failure as Error).message}`, { cause: failure });
-			return { stdout, exitCode: code as number | null, timedOut: killed };
+			return resultOfFailed(command, failure as ProcessFailure);
 		}
 	}
+}
+
+function resultOfFailed(command: string, failure: ProcessFailure): CommandResult {
+	const { code, killed = false, stdout = "" } = failure;
+	if (typeof code === "string") throw new Error(`Could not run ${command}: ${failure.message}`, { cause: failure });
+
+	return { stdout, exitCode: code ?? null, timedOut: killed };
 }
 
 const DEFAULT_NULLED_RESULT: CommandResult = { stdout: "Nulled CommandRunner default output", exitCode: 0, timedOut: false };
