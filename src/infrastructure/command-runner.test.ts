@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { test } from "node:test";
 import { CommandRunner } from "./command-runner";
 
@@ -34,4 +37,13 @@ test("fails, naming the command, when it can't be started", async () => {
 	await assert.rejects(runner.run("/no/such/command", [], IRRELEVANT_TIMEOUT_MS), {
 		message: "Could not run /no/such/command: spawn /no/such/command ENOENT",
 	});
+});
+
+test("a nulled runner starts no processes", async () => {
+	const runner = CommandRunner.createNull();
+	const marker = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-runner-")), "ran");
+
+	await runner.run(process.execPath, ["-e", `require("fs").writeFileSync(${JSON.stringify(marker)}, "")`], IRRELEVANT_TIMEOUT_MS);
+
+	assert.equal(fs.existsSync(marker), false);
 });
