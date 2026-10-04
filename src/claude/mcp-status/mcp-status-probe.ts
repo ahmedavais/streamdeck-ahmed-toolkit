@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import type { CommandRunner } from "../../infrastructure/command-runner";
 import { promisify } from "node:util";
 import { claudeCli } from "./claude-cli";
 import { parseServerStatuses, type ServerStatus } from "./server-status";
@@ -21,4 +22,16 @@ function listingSalvagedFrom(failure: unknown): string {
 	if (typeof stdout === "string" && stdout.length > 0) return stdout;
 
 	throw failure;
+}
+
+export class McpStatusProbe {
+	constructor(
+		private readonly runner: CommandRunner,
+		private readonly locateCli: () => string,
+	) {}
+
+	async serverStatuses(): Promise<ServerStatus[]> {
+		await this.runner.run(this.locateCli(), ["mcp", "list"], PROBE_TIMEOUT_MS);
+		return [];
+	}
 }
