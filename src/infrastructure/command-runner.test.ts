@@ -11,3 +11,11 @@ test("returns the output of a command that succeeds", async () => {
 
 	assert.deepEqual(result, { stdout: "all good", exitCode: 0, timedOut: false });
 });
+
+test("returns the output and exit code of a command that fails", async () => {
+	const runner = CommandRunner.create();
+
+	const result = await runner.run(process.execPath, ["-e", "process.stdout.write('partial'); process.exit(3)"], IRRELEVANT_TIMEOUT_MS);
+
+	assert.deepEqual(result, { stdout: "partial", exitCode: 3, timedOut: false });
+});

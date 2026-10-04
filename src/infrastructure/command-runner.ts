@@ -3,6 +3,8 @@ import { promisify } from "node:util";
 
 export type CommandResult = { stdout: string; exitCode: number | null; timedOut: boolean };
 
+type ProcessFailure = Error & { code?: number | string; stdout?: string };
+
 const runProcess = promisify(execFile);
 
 export class CommandRunner {
@@ -11,7 +13,12 @@ export class CommandRunner {
 	}
 
 	async run(command: string, args: string[], timeoutMs: number): Promise<CommandResult> {
-		const { stdout } = await runProcess(command, args, { encoding: "utf8", timeout: timeoutMs });
-		return { stdout, exitCode: 0, timedOut: false };
+		try {
+			const { stdout } = await runProcess(command, args, { encoding: "utf8", timeout: timeoutMs });
+			return { stdout, exitCode: 0, timedOut: false };
+		} catch (failure) {
+			const { code, stdout = "" } = failure as ProcessFailure;
+			return { stdout, exitCode: code as number, timedOut: false };
+		}
 	}
 }
