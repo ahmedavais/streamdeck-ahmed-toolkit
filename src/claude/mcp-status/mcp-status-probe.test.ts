@@ -11,6 +11,20 @@ test("runs `mcp list` on the located claude CLI with a 40s timeout", async () =>
 	assert.deepEqual(commands.data, [{ command: "/Users/someone/.local/bin/claude", args: ["mcp", "list"], timeoutMs: 40_000 }]);
 });
 
+const TWO_SERVERS = [
+	"idea: http://127.0.0.1:64342/sse (SSE) - ✔ Connected",
+	"claude.ai Asana: https://mcp.asana.com/v2/mcp - ! Needs authentication",
+].join("\n");
+
+test("reads server statuses from a successful listing", async () => {
+	const { statuses } = await probe({ listing: { stdout: TWO_SERVERS, exitCode: 0, timedOut: false } });
+
+	assert.deepEqual(statuses, [
+		{ name: "idea", health: "connected" },
+		{ name: "claude.ai Asana", health: "needs-authentication" },
+	]);
+});
+
 async function probe({ cli = "/irrelevant/claude", listing = IRRELEVANT_LISTING } = {}) {
 	const runner = CommandRunner.createNull(listing);
 	const commands = runner.trackCommands();

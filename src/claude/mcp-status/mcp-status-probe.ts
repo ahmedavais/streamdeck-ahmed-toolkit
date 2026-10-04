@@ -31,7 +31,7 @@ export class McpStatusProbe {
 	) {}
 
 	async serverStatuses(): Promise<ServerStatus[]> {
-		await this.runner.run(this.locateCli(), ["mcp", "list"], PROBE_TIMEOUT_MS);
-		return [];
+		const listing = await this.runner.run(this.locateCli(), ["mcp", "list"], PROBE_TIMEOUT_MS);
+		return parseServerStatuses(listing.stdout);
 	}
 }
