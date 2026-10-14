@@ -22,9 +22,10 @@ Custom Stream Deck actions for macOS. The current set shows live Claude Code sta
 npm install
 npm run build
 npx streamdeck link com.ahmedavais.toolkit.sdPlugin
+npx streamdeck dev
 ```
 
-Stream Deck picks up the linked plugin. You'll find the actions under "Ahmed's Toolkit" in the action list.
+`npx streamdeck dev` turns on Stream Deck's developer mode, once per machine. Without it, Stream Deck ignores plugin restarts. Stream Deck picks up the linked plugin. You'll find the actions under "Ahmed's Toolkit" in the action list.
 
 ## Claude Code hooks
 
@@ -83,7 +84,19 @@ MCP Status parses the human-readable output of `claude mcp list`, which has no m
 
 ```sh
 npm test        # run all tests
-npm run watch   # rebuild on change and restart the plugin in Stream Deck
+npm run watch   # rebuild on change and restart the plugin in Stream Deck (requires developer mode)
+```
+
+Stream Deck keeps running the plugin process it already started, so after `npm run build` you need to restart the plugin:
+
+```sh
+npx streamdeck restart com.ahmedavais.toolkit
+```
+
+Without developer mode the CLI still prints "Restarted", but Stream Deck ignores the request and logs "Feature only enabled in developer mode" to `~/Library/Logs/ElgatoStreamDeck/StreamDeck.log`. To confirm a restart took effect, check that the plugin process has a new pid and start time:
+
+```sh
+ps -eo pid,lstart,command | grep "toolkit.sdPlugin/bin/plugin.js"
 ```
 
 Code that talks to the outside world (HTTP, Keychain, timers, the Stream Deck logger) sits behind wrappers in `src/infrastructure/`. Each wrapper has `create()` for production and `createNull()` for tests, so tests run without network, Keychain or real timers.
