@@ -43,6 +43,12 @@ test("includes what the CLI printed, without terminal control characters", async
 	});
 });
 
+test("fails, saying so, when opening times out", async () => {
+	await assert.rejects(start("/Users/someone/project", { stdout: "", exitCode: null, timedOut: true }), {
+		message: "Could not open /Users/someone/project in Claude Desktop: claude timed out after 30s",
+	});
+});
+
 async function start(projectFolder: string | undefined, result?: NulledCommandResult) {
 	const runner = CommandRunner.createNull(result);
 	const commands = runner.trackCommands();

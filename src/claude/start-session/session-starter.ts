@@ -25,7 +25,9 @@ export class SessionStarter {
 	}
 }
 
-function cliFailure({ exitCode, stdout }: CommandResult): string {
+function cliFailure({ exitCode, stdout, timedOut }: CommandResult): string {
+	if (timedOut) return `claude timed out after ${START_TIMEOUT_MS / 1000}s`;
+
 	const printed = readableTextOf(stdout);
 	return `claude exited with code ${exitCode}${printed ? `: ${printed}` : ""}`;
 }
