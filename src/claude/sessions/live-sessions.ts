@@ -4,10 +4,24 @@ import path from "node:path";
 type RegistryEntry = { pid: number; sessionId: string };
 
 export function liveSessionIds(registryDir: string, isRunning: (pid: number) => boolean): Set<string> | undefined {
-	const entries = fs
+	const running = registryEntriesIn(registryDir).filter(({ pid }) => isRunning(pid));
+	return new Set(running.map(({ sessionId }) => sessionId));
+}
+
+function registryEntriesIn(registryDir: string): RegistryEntry[] {
+	return fs
 		.readdirSync(registryDir)
 		.filter((name) => name.endsWith(".json"))
-		.map((name) => JSON.parse(fs.readFileSync(path.join(registryDir, name), "utf8")) as RegistryEntry);
+		.flatMap((name) => {
+			const entry = readEntry(path.join(registryDir, name));
+			return entry ? [entry] : [];
+		});
+}
 
-	return new Set(entries.filter(({ pid }) => isRunning(pid)).map(({ sessionId }) => sessionId));
+function readEntry(file: string): RegistryEntry | undefined {
+	try {
+		return JSON.parse(fs.readFileSync(file, "utf8"));
+	} catch {
+		return undefined;
+	}
 }

@@ -20,6 +20,15 @@ test("leaves out a session whose process has exited", () => {
 	assert.deepEqual(liveSessionIds(registryDir, (pid) => pid === 5011), new Set(["session-running"]));
 });
 
+test("skips a registry entry it can't parse", () => {
+	const registryDir = registryHolding({
+		"5011.json": { pid: 5011, sessionId: "session-a" },
+		"4242.json": "{ not json",
+	});
+
+	assert.deepEqual(liveSessionIds(registryDir, () => true), new Set(["session-a"]));
+});
+
 function registryHolding(files: Record<string, unknown>): string {
 	const registryDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-registry-"));
 	for (const [name, content] of Object.entries(files)) {
