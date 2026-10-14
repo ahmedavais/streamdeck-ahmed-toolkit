@@ -12,6 +12,8 @@ const WORD_FOR: Record<ServerHealth, string> = {
 	unknown: "?",
 };
 
+const SOURCE_PREFIX = /^(claude\.ai |plugin:[^:]+:)/;
+
 const WORST_FIRST: ServerHealth[] = ["failed", "unknown", "needs-authentication", "pending-approval"];
 
 export function summarizeServerStatuses(statuses: ServerStatus[]): StatusSummary {
@@ -37,7 +39,7 @@ function worstServerLabel([worst, ...others]: ServerStatus[]): string {
 }
 
 function shortNameOf(name: string): string {
-	return name.replace(/^claude\.ai /, "");
+	return name.replace(SOURCE_PREFIX, "");
 }
 
 function byWorstFirst(first: ServerStatus, second: ServerStatus): number {

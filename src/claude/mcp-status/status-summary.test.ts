@@ -60,6 +60,12 @@ test("drops the claude.ai prefix from a server's name", () => {
 	assert.equal(summary.label, "Miro\nauth");
 });
 
+test("drops the plugin prefix from a server's name", () => {
+	const summary = summarizeServerStatuses([{ name: "plugin:cloudflare:cloudflare", health: "failed" }]);
+
+	assert.equal(summary.label, "cloudflare\nfail");
+});
+
 test("no configured servers is neither healthy nor broken", () => {
 	assert.deepEqual(summarizeServerStatuses([]), { label: "none", severity: "unknown" });
 });
