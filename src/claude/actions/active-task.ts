@@ -2,7 +2,7 @@ import { action } from "@elgato/streamdeck";
 import { renderStateImage } from "../../key-image/state-image";
 import type { KeyDisplay } from "../../polling-key/poller";
 import { PollingKeyAction } from "../../polling-key/polling-key-action";
-import { formatElapsed } from "../active-task/elapsed";
+import { formatElapsed } from "../../key-title/elapsed";
 import { chooseTurnToDisplay, elapsedOf, isInProgress } from "../active-task/turn-state";
 import { readSessions } from "../sessions/session-store";
 
