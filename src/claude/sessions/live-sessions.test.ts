@@ -29,6 +29,12 @@ test("skips a registry entry it can't parse", () => {
 	assert.deepEqual(liveSessionIds(registryDir, () => true), new Set(["session-a"]));
 });
 
+test("liveness is unknown when the registry folder doesn't exist", () => {
+	const missingDir = path.join(os.tmpdir(), "toolkit-registry-that-was-never-created");
+
+	assert.equal(liveSessionIds(missingDir, () => true), undefined);
+});
+
 function registryHolding(files: Record<string, unknown>): string {
 	const registryDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-registry-"));
 	for (const [name, content] of Object.entries(files)) {
