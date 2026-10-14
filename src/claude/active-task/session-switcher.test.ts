@@ -30,3 +30,11 @@ test("fails, naming the app, when it can't be brought forward", async () => {
 		message: "Could not bring com.example.gone to the front: open exited with code 1",
 	});
 });
+
+test("fails, saying so, when bringing the app forward times out", async () => {
+	const switcher = new SessionSwitcher(CommandRunner.createNull({ stdout: "", exitCode: null, timedOut: true }));
+
+	await assert.rejects(switcher.bringForward({ turnStartedAt: 1_000, hostApp: "com.example.stuck" }), {
+		message: "Could not bring com.example.stuck to the front: open timed out after 5s",
+	});
+});
