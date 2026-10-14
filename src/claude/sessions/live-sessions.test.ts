@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { once } from "node:events";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -49,6 +51,13 @@ test("keeps every session when liveness is unknown", () => {
 
 test("the current process is running", () => {
 	assert.equal(isRunning(process.pid), true);
+});
+
+test("a process that has exited isn't running", async () => {
+	const exited = spawn(process.execPath, ["-e", ""]);
+	await once(exited, "exit");
+
+	assert.equal(isRunning(exited.pid!), false);
 });
 
 function registryHolding(files: Record<string, unknown>): string {
