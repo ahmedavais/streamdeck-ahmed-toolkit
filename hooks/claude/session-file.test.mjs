@@ -164,6 +164,14 @@ test("the plugin reads the waiting the hooks write", () => {
 	});
 });
 
+test("the plugin reads the app the hooks write", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	startTurn(sessionsDir, "session-a", 1_000, "com.googlecode.iterm2");
+
+	assert.deepEqual(readSessions(sessionsDir), { "session-a": { turnStartedAt: 1_000, hostApp: "com.googlecode.iterm2" } });
+});
+
 test("concurrent sessions keep their own turns", async () => {
 	const home = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-home-"));
 	const sessionIds = Array.from({ length: 20 }, (_, index) => `session-${index}`);
