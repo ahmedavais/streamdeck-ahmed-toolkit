@@ -23,7 +23,7 @@ test("expands ~ to the home folder", async () => {
 test("fails, sending nothing, when no project folder is set", async () => {
 	const runner = CommandRunner.createNull();
 	const commands = runner.trackCommands();
-	const starter = new SessionStarter(runner, () => CLI, HOME);
+	const starter = new SessionStarter(runner, () => CLI, HOME, () => true);
 
 	await assert.rejects(starter.start(""), { message: "No project folder set for this key" });
 	assert.deepEqual(commands.data, []);
@@ -49,10 +49,19 @@ test("fails, saying so, when opening times out", async () => {
 	});
 });
 
-async function start(projectFolder: string | undefined, result?: NulledCommandResult) {
+test("fails, sending nothing, when the project folder doesn't exist", async () => {
+	const runner = CommandRunner.createNull();
+	const commands = runner.trackCommands();
+	const starter = new SessionStarter(runner, () => CLI, HOME, (folder) => folder !== "/Users/someone/projcts/toolkit");
+
+	await assert.rejects(starter.start("~/projcts/toolkit"), { message: "Project folder /Users/someone/projcts/toolkit doesn't exist" });
+	assert.deepEqual(commands.data, []);
+});
+
+async function start(projectFolder: string | undefined, result?: NulledCommandResult, folderExists = () => true) {
 	const runner = CommandRunner.createNull(result);
 	const commands = runner.trackCommands();
-	const starter = new SessionStarter(runner, () => CLI, HOME);
+	const starter = new SessionStarter(runner, () => CLI, HOME, folderExists);
 
 	await starter.start(projectFolder);
 
