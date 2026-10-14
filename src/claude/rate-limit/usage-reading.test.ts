@@ -40,3 +40,11 @@ test("returns to colour when the probe recovers", async () => {
 
 	assert.deepEqual(display, { image: renderGaugeImage({ usage: 0.5 }, "fresh", IRRELEVANT_NOW) });
 });
+
+test("counts down to the reset from the time it is given", async () => {
+	const reading = new UsageReading(RateLimitClient.createNull({ usage: 0.33, resetsAt: 1_792_378_800_000 }));
+
+	const display = await reading.currentDisplay(1_792_360_800_000);
+
+	assert.deepEqual(display, { image: renderGaugeImage({ usage: 0.33, resetsAt: 1_792_378_800_000 }, "fresh", 1_792_360_800_000) });
+});
