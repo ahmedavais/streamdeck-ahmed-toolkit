@@ -14,30 +14,30 @@ test("everything connected reads as healthy", () => {
 	});
 });
 
-test("a server needing authentication is a warning", () => {
+test("a server needing authentication is named as a warning", () => {
 	assert.deepEqual(
 		summarizeServerStatuses(statuses("connected", "connected", "connected", "connected", "connected", "connected", "needs-authentication")),
-		{ label: "6 ok / 1 auth", severity: "warn" },
+		{ label: "server-6\nauth", severity: "warn" },
 	);
 });
 
-test("a server awaiting approval is a warning", () => {
+test("a server awaiting approval is named as a warning", () => {
 	assert.deepEqual(summarizeServerStatuses(statuses("connected", "pending-approval")), {
-		label: "1 ok / 1 pending",
+		label: "server-1\npending",
 		severity: "warn",
 	});
 });
 
 test("a failure outranks a server needing authentication", () => {
 	assert.deepEqual(summarizeServerStatuses(statuses("connected", "needs-authentication", "failed")), {
-		label: "1 ok / 1 auth / 1 fail",
+		label: "server-2\nfail +1",
 		severity: "fail",
 	});
 });
 
-test("an unrecognized status is surfaced as a warning", () => {
+test("a server with an unrecognized status is named as a warning", () => {
 	assert.deepEqual(summarizeServerStatuses(statuses("connected", "unknown")), {
-		label: "1 ok / 1 ?",
+		label: "server-1\n?",
 		severity: "warn",
 	});
 });

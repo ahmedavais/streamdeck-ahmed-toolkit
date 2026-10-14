@@ -4,13 +4,15 @@ export type Severity = "ok" | "warn" | "fail" | "unknown";
 
 export type StatusSummary = { label: string; severity: Severity };
 
-const SEGMENTS: ReadonlyArray<[ServerHealth, string]> = [
-	["connected", "ok"],
-	["needs-authentication", "auth"],
-	["pending-approval", "pending"],
-	["failed", "fail"],
-	["unknown", "?"],
-];
+const WORD_FOR: Record<ServerHealth, string> = {
+	connected: "ok",
+	"needs-authentication": "auth",
+	"pending-approval": "pending",
+	failed: "fail",
+	unknown: "?",
+};
+
+const WORST_FIRST: ServerHealth[] = ["failed", "unknown", "needs-authentication", "pending-approval"];
 
 export function summarizeServerStatuses(statuses: ServerStatus[]): StatusSummary {
 	if (statuses.length === 0) return { label: "none", severity: "unknown" };
@@ -19,10 +21,23 @@ export function summarizeServerStatuses(statuses: ServerStatus[]): StatusSummary
 }
 
 function labelOf(statuses: ServerStatus[]): string {
-	return SEGMENTS.map(([health, word]) => [countOf(statuses, health), word] as const)
-		.filter(([count]) => count > 0)
-		.map(([count, word]) => `${count} ${word}`)
-		.join(" / ");
+	const unhealthy = unhealthyWorstFirst(statuses);
+	if (unhealthy.length === 0) return `${statuses.length} ${WORD_FOR.connected}`;
+
+	return worstServerLabel(unhealthy);
+}
+
+function unhealthyWorstFirst(statuses: ServerStatus[]): ServerStatus[] {
+	return statuses.filter(({ health }) => health !== "connected").sort(byWorstFirst);
+}
+
+function worstServerLabel([worst, ...others]: ServerStatus[]): string {
+	const more = others.length > 0 ? ` +${others.length}` : "";
+	return `${worst.name}\n${WORD_FOR[worst.health]}${more}`;
+}
+
+function byWorstFirst(first: ServerStatus, second: ServerStatus): number {
+	return WORST_FIRST.indexOf(first.health) - WORST_FIRST.indexOf(second.health);
 }
 
 function severityOf(statuses: ServerStatus[]): Severity {
@@ -30,8 +45,4 @@ function severityOf(statuses: ServerStatus[]): Severity {
 	if (statuses.every(({ health }) => health === "connected")) return "ok";
 
 	return "warn";
-}
-
-function countOf(statuses: ServerStatus[], health: ServerHealth): number {
-	return statuses.filter((status) => status.health === health).length;
 }
