@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { readTurnState, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/sessions/session-store.ts";
+import { readSessions, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/sessions/session-store.ts";
 import { endSession, endTurn, SESSIONS_DIR, startTurn } from "./session-file.mjs";
 
 test("starting a turn records when it started", () => {
@@ -81,7 +81,7 @@ test("the plugin reads the turns the hooks write", () => {
 	endTurn(sessionsDir, "session-a", 4_000);
 	startTurn(sessionsDir, "session-b", 2_000);
 
-	assert.deepEqual(readTurnState(sessionsDir), {
+	assert.deepEqual(readSessions(sessionsDir), {
 		"session-a": { turnStartedAt: 1_000, turnEndedAt: 4_000 },
 		"session-b": { turnStartedAt: 2_000 },
 	});

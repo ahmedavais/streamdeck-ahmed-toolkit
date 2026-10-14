@@ -5,7 +5,7 @@ import type { Session, Sessions } from "./session";
 
 export const SESSIONS_DIR = path.join(os.homedir(), ".streamdeck-ahmed-toolkit", "sessions");
 
-export function readTurnState(sessionsDir = SESSIONS_DIR): Sessions {
+export function readSessions(sessionsDir = SESSIONS_DIR): Sessions {
 	if (!fs.existsSync(sessionsDir)) return {};
 
 	const sessions: Sessions = {};
