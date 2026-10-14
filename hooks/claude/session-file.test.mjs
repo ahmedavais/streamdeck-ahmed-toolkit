@@ -6,7 +6,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { readSessions, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/sessions/session-store.ts";
-import { endSession, endTurn, SESSIONS_DIR, startTurn, startWaiting } from "./session-file.mjs";
+import { endSession, endTurn, SESSIONS_DIR, startTurn, startWaiting, stopWaiting } from "./session-file.mjs";
 
 test("starting a turn records when it started", () => {
 	const sessionsDir = temporarySessionsDir();
@@ -60,6 +60,16 @@ test("waiting in an unknown session does nothing", () => {
 	startWaiting(sessionsDir, "never-started", "permission", 3_000);
 
 	assert.deepEqual(sessionFiles(sessionsDir), {});
+});
+
+test("tools finishing clears the waiting", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+	startWaiting(sessionsDir, "session-a", "permission", 3_000);
+
+	stopWaiting(sessionsDir, "session-a");
+
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000 } });
 });
 
 test("ending a session removes its file", () => {

@@ -16,6 +16,10 @@ export function startWaiting(sessionsDir, sessionId, reason, now) {
 	updateSession(sessionsDir, sessionId, (session) => ({ ...session, waiting: { for: reason, since: now } }));
 }
 
+export function stopWaiting(sessionsDir, sessionId) {
+	updateSession(sessionsDir, sessionId, ({ waiting, ...session }) => session);
+}
+
 export function endSession(sessionsDir, sessionId) {
 	fs.rmSync(sessionFile(sessionsDir, sessionId), { force: true });
 }
