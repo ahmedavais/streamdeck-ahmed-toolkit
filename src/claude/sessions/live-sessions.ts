@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { Sessions } from "./session";
 
 type RegistryEntry = { pid: number; sessionId: string };
 
@@ -8,6 +9,10 @@ export function liveSessionIds(registryDir: string, isRunning: (pid: number) => 
 
 	const running = registryEntriesIn(registryDir).filter(({ pid }) => isRunning(pid));
 	return new Set(running.map(({ sessionId }) => sessionId));
+}
+
+export function onlyLive(sessions: Sessions, liveIds: Set<string> | undefined): Sessions {
+	return Object.fromEntries(Object.entries(sessions).filter(([sessionId]) => liveIds!.has(sessionId)));
 }
 
 function registryEntriesIn(registryDir: string): RegistryEntry[] {

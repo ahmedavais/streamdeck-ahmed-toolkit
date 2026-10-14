@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { liveSessionIds } from "./live-sessions";
+import { liveSessionIds, onlyLive } from "./live-sessions";
 
 test("lists the sessions whose Claude Code process is running", () => {
 	const registryDir = registryHolding({ "5011.json": { pid: 5011, sessionId: "session-a" } });
@@ -33,6 +33,12 @@ test("liveness is unknown when the registry folder doesn't exist", () => {
 	const missingDir = path.join(os.tmpdir(), "toolkit-registry-that-was-never-created");
 
 	assert.equal(liveSessionIds(missingDir, () => true), undefined);
+});
+
+test("keeps only live sessions", () => {
+	const sessions = { "session-live": { turnStartedAt: 1_000 }, "session-dead": { turnStartedAt: 2_000 } };
+
+	assert.deepEqual(onlyLive(sessions, new Set(["session-live"])), { "session-live": { turnStartedAt: 1_000 } });
 });
 
 function registryHolding(files: Record<string, unknown>): string {
