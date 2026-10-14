@@ -66,6 +66,12 @@ test("forgets waiting recorded before the session's process started", () => {
 	assert.deepEqual(onlyLive(sessions, new Map([["session-resumed", 5_000]])), { "session-resumed": { turnStartedAt: 1_000 } });
 });
 
+test("keeps waiting recorded since the session's process started", () => {
+	const sessions = { "session-a": { turnStartedAt: 6_000, waiting: { for: "input" as const, since: 7_000 } } };
+
+	assert.deepEqual(onlyLive(sessions, new Map([["session-a", 5_000]])), sessions);
+});
+
 function registryHolding(files: Record<string, unknown>): string {
 	const registryDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-registry-"));
 	for (const [name, content] of Object.entries(files)) {
