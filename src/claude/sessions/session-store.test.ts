@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { readTurnState } from "./turn-store";
+import { readTurnState } from "./session-store";
 
 test("reads every session's turn", () => {
 	const sessionsDir = sessionsDirHolding({

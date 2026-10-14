@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { readTurnState, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/active-task/turn-store.ts";
+import { readTurnState, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/sessions/session-store.ts";
 import { endSession, endTurn, SESSIONS_DIR, startTurn } from "./session-file.mjs";
 
 test("starting a turn records when it started", () => {

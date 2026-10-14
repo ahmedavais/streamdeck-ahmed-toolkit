@@ -4,7 +4,7 @@ import type { KeyDisplay } from "../../polling-key/poller";
 import { PollingKeyAction } from "../../polling-key/polling-key-action";
 import { formatElapsed } from "../active-task/elapsed";
 import { chooseTurnToDisplay, elapsedOf, isInProgress } from "../active-task/turn-state";
-import { readTurnState } from "../active-task/turn-store";
+import { readTurnState } from "../sessions/session-store";
 
 const TICK_INTERVAL_MS = 1_000;
 const IDLE_COLOR = "#3a3a42";

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { Turn, TurnStateFile } from "./turn-state";
+import type { Turn, TurnStateFile } from "../active-task/turn-state";
 
 export const SESSIONS_DIR = path.join(os.homedir(), ".streamdeck-ahmed-toolkit", "sessions");
 
