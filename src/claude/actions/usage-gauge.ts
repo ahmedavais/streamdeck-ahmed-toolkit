@@ -14,6 +14,6 @@ export class UsageGauge extends PollingKeyAction {
 	}
 
 	protected override check(): Promise<KeyDisplay | undefined> {
-		return this.usage.currentDisplay();
+		return this.usage.currentDisplay(Date.now());
 	}
 }

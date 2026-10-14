@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { colorForUtilization, formatPercent, renderGaugeImage } from "./gauge-image";
 
+const IRRELEVANT_NOW = 0;
+
 test("colors utilization under 60% green", () => {
 	assert.equal(colorForUtilization(0.59), "#3ddc84");
 });
@@ -22,15 +24,24 @@ test("formats a fraction as a rounded whole-number percentage", () => {
 });
 
 test("a fresh reading renders the percentage in its utilization colour", () => {
-	const svg = svgOf(renderGaugeImage({ usage: 0.9 }, "fresh"));
+	const svg = svgOf(renderGaugeImage({ usage: 0.9 }, "fresh", IRRELEVANT_NOW));
 
 	assert.match(svg, /fill="#e5484d"[^>]*>90%</);
 });
 
 test("a stale reading renders the same percentage in grey", () => {
-	const svg = svgOf(renderGaugeImage({ usage: 0.9 }, "stale"));
+	const svg = svgOf(renderGaugeImage({ usage: 0.9 }, "stale", IRRELEVANT_NOW));
 
 	assert.match(svg, /fill="#6b6b73"[^>]*>90%</);
+});
+
+test("shows how long until the weekly window resets under the percentage", () => {
+	const resetsAt = 1_792_378_800_000;
+	const fiveDaysOneHourBefore = resetsAt - (5 * 24 + 1) * 60 * 60 * 1000;
+
+	const svg = svgOf(renderGaugeImage({ usage: 0.33, resetsAt }, "fresh", fiveDaysOneHourBefore));
+
+	assert.match(svg, />↻ 5d 1h</);
 });
 
 function svgOf(dataUri: string): string {

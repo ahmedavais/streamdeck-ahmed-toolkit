@@ -12,11 +12,11 @@ export class UsageReading {
 
 	constructor(private readonly rateLimit: RateLimitClient) {}
 
-	async currentDisplay(): Promise<KeyDisplay | undefined> {
+	async currentDisplay(now: number): Promise<KeyDisplay | undefined> {
 		const snapshot = await this.rateLimit.fetchSnapshot();
 		this.lastSnapshot = snapshot ?? this.lastSnapshot;
 		if (!this.lastSnapshot) return undefined;
 
-		return { image: renderGaugeImage(this.lastSnapshot, snapshot ? "fresh" : "stale") };
+		return { image: renderGaugeImage(this.lastSnapshot, snapshot ? "fresh" : "stale", now) };
 	}
 }
