@@ -1,6 +1,4 @@
-export type Turn = { turnStartedAt: number; turnEndedAt?: number };
-
-export type TurnStateFile = Record<string, Turn>;
+import type { Sessions, Turn } from "../sessions/session";
 
 export type DisplayedTurn = { sessionId: string; turn: Turn };
 
@@ -12,8 +10,8 @@ export function elapsedOf(turn: Turn, now: number): number {
 	return (turn.turnEndedAt ?? now) - turn.turnStartedAt;
 }
 
-export function chooseTurnToDisplay(turns: TurnStateFile): DisplayedTurn | undefined {
-	const entries = Object.entries(turns);
+export function chooseTurnToDisplay(sessions: Sessions): DisplayedTurn | undefined {
+	const entries = Object.entries(sessions);
 	if (entries.length === 0) return undefined;
 
 	const inProgress = entries.filter(([, turn]) => isInProgress(turn));
