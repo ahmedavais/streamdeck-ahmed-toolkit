@@ -10,6 +10,7 @@ export class SessionSwitcher {
 	async bringForward({ hostApp }: Session): Promise<void> {
 		if (!hostApp) return;
 
-		await this.runner.run(OPEN, ["-b", hostApp], SWITCH_TIMEOUT_MS);
+		const { exitCode } = await this.runner.run(OPEN, ["-b", hostApp], SWITCH_TIMEOUT_MS);
+		if (exitCode !== 0) throw new Error(`Could not bring ${hostApp} to the front: open exited with code ${exitCode}`);
 	}
 }

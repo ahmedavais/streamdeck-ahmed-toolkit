@@ -22,3 +22,11 @@ test("does nothing for a session whose app is unknown", async () => {
 
 	assert.deepEqual(commands.data, []);
 });
+
+test("fails, naming the app, when it can't be brought forward", async () => {
+	const switcher = new SessionSwitcher(CommandRunner.createNull({ stdout: "", exitCode: 1, timedOut: false }));
+
+	await assert.rejects(switcher.bringForward({ turnStartedAt: 1_000, hostApp: "com.example.gone" }), {
+		message: "Could not bring com.example.gone to the front: open exited with code 1",
+	});
+});
