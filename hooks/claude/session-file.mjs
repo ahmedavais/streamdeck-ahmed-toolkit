@@ -9,18 +9,22 @@ export function startTurn(sessionsDir, sessionId, now) {
 }
 
 export function endTurn(sessionsDir, sessionId, now) {
-	const file = sessionFile(sessionsDir, sessionId);
-	if (!fs.existsSync(file)) return;
-
-	writeSession(sessionsDir, sessionId, { ...readSession(file), turnEndedAt: now });
+	updateSession(sessionsDir, sessionId, (session) => ({ ...session, turnEndedAt: now }));
 }
 
 export function startWaiting(sessionsDir, sessionId, reason, now) {
-	writeSession(sessionsDir, sessionId, { ...readSession(sessionFile(sessionsDir, sessionId)), waiting: { for: reason, since: now } });
+	updateSession(sessionsDir, sessionId, (session) => ({ ...session, waiting: { for: reason, since: now } }));
 }
 
 export function endSession(sessionsDir, sessionId) {
 	fs.rmSync(sessionFile(sessionsDir, sessionId), { force: true });
+}
+
+function updateSession(sessionsDir, sessionId, change) {
+	const file = sessionFile(sessionsDir, sessionId);
+	if (!fs.existsSync(file)) return;
+
+	writeSession(sessionsDir, sessionId, change(readSession(file)));
 }
 
 function writeSession(sessionsDir, sessionId, session) {

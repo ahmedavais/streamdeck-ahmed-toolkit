@@ -54,6 +54,14 @@ test("a permission prompt records that the session waits for permission, keeping
 	});
 });
 
+test("waiting in an unknown session does nothing", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	startWaiting(sessionsDir, "never-started", "permission", 3_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), {});
+});
+
 test("ending a session removes its file", () => {
 	const sessionsDir = temporarySessionsDir();
 	startTurn(sessionsDir, "session-a", 1_000);
