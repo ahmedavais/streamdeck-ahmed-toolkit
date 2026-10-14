@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { liveSessionIds, onlyLive } from "./live-sessions";
+import { isRunning, liveSessionIds, onlyLive } from "./live-sessions";
 
 test("lists the sessions whose Claude Code process is running", () => {
 	const registryDir = registryHolding({ "5011.json": { pid: 5011, sessionId: "session-a" } });
@@ -45,6 +45,10 @@ test("keeps every session when liveness is unknown", () => {
 	const sessions = { "session-a": { turnStartedAt: 1_000 }, "session-b": { turnStartedAt: 2_000 } };
 
 	assert.deepEqual(onlyLive(sessions, undefined), sessions);
+});
+
+test("the current process is running", () => {
+	assert.equal(isRunning(process.pid), true);
 });
 
 function registryHolding(files: Record<string, unknown>): string {

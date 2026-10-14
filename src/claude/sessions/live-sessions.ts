@@ -34,3 +34,8 @@ function readEntry(file: string): RegistryEntry | undefined {
 		return undefined;
 	}
 }
+
+export function isRunning(pid: number): boolean {
+	process.kill(pid, 0);
+	return true;
+}
