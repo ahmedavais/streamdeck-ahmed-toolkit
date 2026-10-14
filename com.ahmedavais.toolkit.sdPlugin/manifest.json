@@ -62,6 +62,22 @@
 					"TitleAlignment": "middle"
 				}
 			]
+		},
+		{
+			"Name": "Start Session",
+			"UUID": "com.ahmedavais.toolkit.claude.start-session",
+			"Icon": "imgs/actions/start-session/icon",
+			"Tooltip": "Starts a new Claude Code session in the Claude desktop app, in the project folder you choose.",
+			"PropertyInspectorPath": "ui/start-session.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/start-session/key",
+					"TitleAlignment": "bottom"
+				}
+			]
 		}
 	],
 	"Category": "Ahmed's Toolkit",

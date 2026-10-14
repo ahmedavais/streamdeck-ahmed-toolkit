@@ -1,4 +1,6 @@
+import os from "node:os";
 import { CommandRunner, type CommandResult } from "../../infrastructure/command-runner";
+import { claudeCli } from "../claude-cli";
 
 const PSEUDO_TERMINAL = "/usr/bin/script";
 const START_TIMEOUT_MS = 30_000;
@@ -6,6 +8,10 @@ const ESCAPE_SEQUENCE = /\x1b\[[0-9;?]*[A-Za-z]/g;
 const CONTROL_CHARACTER = /[\x00-\x1f\x7f]/g;
 
 export class SessionStarter {
+	static create(): SessionStarter {
+		return new SessionStarter(CommandRunner.create(), claudeCli, os.homedir());
+	}
+
 	constructor(
 		private readonly runner: CommandRunner,
 		private readonly locateCli: () => string,
