@@ -6,23 +6,25 @@ import { readSessions } from "./session-store";
 
 const CLAUDE_SESSION_REGISTRY = path.join(os.homedir(), ".claude", "sessions");
 
-type RegistryEntry = { pid: number; sessionId: string };
+type RegistryEntry = { pid: number; sessionId: string; startedAt: number };
+
+export type LiveProcesses = Map<string, number>;
 
 export function readLiveSessions(): Sessions {
-	return onlyLive(readSessions(), liveSessionIds(CLAUDE_SESSION_REGISTRY, isRunning));
+	return onlyLive(readSessions(), liveProcesses(CLAUDE_SESSION_REGISTRY, isRunning));
 }
 
-export function liveSessionIds(registryDir: string, isRunning: (pid: number) => boolean): Set<string> | undefined {
+export function liveProcesses(registryDir: string, isRunning: (pid: number) => boolean): LiveProcesses | undefined {
 	if (!fs.existsSync(registryDir)) return undefined;
 
 	const running = registryEntriesIn(registryDir).filter(({ pid }) => isRunning(pid));
-	return new Set(running.map(({ sessionId }) => sessionId));
+	return new Map(running.map(({ sessionId, startedAt }) => [sessionId, startedAt]));
 }
 
-export function onlyLive(sessions: Sessions, liveIds: Set<string> | undefined): Sessions {
-	if (!liveIds) return sessions;
+export function onlyLive(sessions: Sessions, live: LiveProcesses | undefined): Sessions {
+	if (!live) return sessions;
 
-	return Object.fromEntries(Object.entries(sessions).filter(([sessionId]) => liveIds.has(sessionId)));
+	return Object.fromEntries(Object.entries(sessions).filter(([sessionId]) => live.has(sessionId)));
 }
 
 function registryEntriesIn(registryDir: string): RegistryEntry[] {
