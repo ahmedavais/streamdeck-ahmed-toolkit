@@ -54,6 +54,12 @@ test("the first listed wins among servers with the same health", () => {
 	assert.equal(summarizeServerStatuses(statuses("failed", "failed")).label, "server-0\nfail +1");
 });
 
+test("drops the claude.ai prefix from a server's name", () => {
+	const summary = summarizeServerStatuses([{ name: "claude.ai Miro", health: "needs-authentication" }]);
+
+	assert.equal(summary.label, "Miro\nauth");
+});
+
 test("no configured servers is neither healthy nor broken", () => {
 	assert.deepEqual(summarizeServerStatuses([]), { label: "none", severity: "unknown" });
 });

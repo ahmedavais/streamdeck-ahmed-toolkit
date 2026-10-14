@@ -33,7 +33,11 @@ function unhealthyWorstFirst(statuses: ServerStatus[]): ServerStatus[] {
 
 function worstServerLabel([worst, ...others]: ServerStatus[]): string {
 	const more = others.length > 0 ? ` +${others.length}` : "";
-	return `${worst.name}\n${WORD_FOR[worst.health]}${more}`;
+	return `${shortNameOf(worst.name)}\n${WORD_FOR[worst.health]}${more}`;
+}
+
+function shortNameOf(name: string): string {
+	return name.replace(/^claude\.ai /, "");
 }
 
 function byWorstFirst(first: ServerStatus, second: ServerStatus): number {
