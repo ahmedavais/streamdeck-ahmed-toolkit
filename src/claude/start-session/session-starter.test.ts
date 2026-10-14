@@ -30,8 +30,16 @@ test("fails, sending nothing, when no project folder is set", async () => {
 });
 
 test("fails, naming the folder, when the CLI exits with an error", async () => {
-	await assert.rejects(start("/Users/someone/gone", { stdout: "No such folder", exitCode: 1, timedOut: false }), {
+	await assert.rejects(start("/Users/someone/gone", { stdout: "", exitCode: 1, timedOut: false }), {
 		message: "Could not open /Users/someone/gone in Claude Desktop: claude exited with code 1",
+	});
+});
+
+test("includes what the CLI printed, without terminal control characters", async () => {
+	const printed = "\x04\b\b--desktop requires signing in with a Claude account.\r\n\x1b[?25h";
+
+	await assert.rejects(start("/Users/someone/project", { stdout: printed, exitCode: 1, timedOut: false }), {
+		message: "Could not open /Users/someone/project in Claude Desktop: claude exited with code 1: --desktop requires signing in with a Claude account.",
 	});
 });
 
