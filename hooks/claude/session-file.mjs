@@ -9,7 +9,7 @@ export function startTurn(sessionsDir, sessionId, now) {
 }
 
 export function endTurn(sessionsDir, sessionId, now) {
-	updateSession(sessionsDir, sessionId, (session) => ({ ...session, turnEndedAt: now }));
+	updateSession(sessionsDir, sessionId, (session) => ({ ...withoutWaiting(session), turnEndedAt: now }));
 }
 
 export function startWaiting(sessionsDir, sessionId, reason, now) {
@@ -17,11 +17,15 @@ export function startWaiting(sessionsDir, sessionId, reason, now) {
 }
 
 export function stopWaiting(sessionsDir, sessionId) {
-	updateSession(sessionsDir, sessionId, ({ waiting, ...session }) => session);
+	updateSession(sessionsDir, sessionId, withoutWaiting);
 }
 
 export function endSession(sessionsDir, sessionId) {
 	fs.rmSync(sessionFile(sessionsDir, sessionId), { force: true });
+}
+
+function withoutWaiting({ waiting, ...session }) {
+	return session;
 }
 
 function updateSession(sessionsDir, sessionId, change) {

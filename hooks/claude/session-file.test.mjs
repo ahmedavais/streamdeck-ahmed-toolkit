@@ -80,6 +80,16 @@ test("tools finishing in an unknown session does nothing", () => {
 	assert.deepEqual(sessionFiles(sessionsDir), {});
 });
 
+test("ending a turn clears the waiting", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+	startWaiting(sessionsDir, "session-a", "permission", 3_000);
+
+	endTurn(sessionsDir, "session-a", 4_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, turnEndedAt: 4_000 } });
+});
+
 test("ending a session removes its file", () => {
 	const sessionsDir = temporarySessionsDir();
 	startTurn(sessionsDir, "session-a", 1_000);
