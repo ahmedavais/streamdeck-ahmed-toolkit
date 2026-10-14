@@ -6,7 +6,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { readSessions, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/sessions/session-store.ts";
-import { endSession, endTurn, SESSIONS_DIR, startTurn } from "./session-file.mjs";
+import { endSession, endTurn, SESSIONS_DIR, startTurn, startWaiting } from "./session-file.mjs";
 
 test("starting a turn records when it started", () => {
 	const sessionsDir = temporarySessionsDir();
@@ -41,6 +41,17 @@ test("starting a new turn replaces the previous turn's timings", () => {
 	startTurn(sessionsDir, "session-a", 9_000);
 
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 9_000 } });
+});
+
+test("a permission prompt records that the session waits for permission, keeping its turn", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+
+	startWaiting(sessionsDir, "session-a", "permission", 3_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), {
+		"session-a.json": { turnStartedAt: 1_000, waiting: { for: "permission", since: 3_000 } },
+	});
 });
 
 test("ending a session removes its file", () => {
