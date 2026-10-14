@@ -52,7 +52,7 @@ Active Task and Needs Attention read session state that five Claude Code hooks w
 }
 ```
 
-`turn-started` records when you submit a prompt and which app the session runs in (from macOS's `__CFBundleIdentifier`), `turn-ended` records when Claude stops, and `session-end` removes the session's file. `notified` records that the session is waiting for your approval or reply. Claude Code has no hook for "you answered the permission prompt", so `tools-finished` clears the waiting once the approved tools have run. Ending or starting a turn clears it too, which covers a denied prompt and a reply to an idle session. Each session's hooks write only that session's file, replacing it in one rename, so concurrent sessions can't overwrite each other and the plugin never reads half a file.
+`turn-started` records when you submit a prompt and which app the session runs in (from macOS's `__CFBundleIdentifier`), `turn-ended` records when Claude stops, and `session-end` removes the session's file. `notified` records that the session is waiting for your approval or reply. Claude Code has no hook for "you answered the permission prompt", so `tools-finished` clears the waiting once the approved tools have run. Each hook stamps the time it started, and a notification stamped before the tools finished is ignored, so the two hooks can't leave a session marked waiting if they finish out of order. Ending or starting a turn clears it too, which covers a denied prompt and a reply to an idle session. Each session's hooks write only that session's file, replacing it in one rename, so concurrent sessions can't overwrite each other and the plugin never reads half a file.
 
 ## Using the keys from an AI assistant
 

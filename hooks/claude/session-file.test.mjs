@@ -75,15 +75,37 @@ test("tools finishing clears the waiting", () => {
 	startTurn(sessionsDir, "session-a", 1_000);
 	startWaiting(sessionsDir, "session-a", "permission", 3_000);
 
-	stopWaiting(sessionsDir, "session-a");
+	stopWaiting(sessionsDir, "session-a", 4_000);
 
-	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000 } });
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, toolsFinishedAt: 4_000 } });
+});
+
+test("a notification sent before the tools finished doesn't mark the session waiting", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+	stopWaiting(sessionsDir, "session-a", 5_000);
+
+	startWaiting(sessionsDir, "session-a", "permission", 4_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, toolsFinishedAt: 5_000 } });
+});
+
+test("a notification sent after the tools finished marks the session waiting", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+	stopWaiting(sessionsDir, "session-a", 5_000);
+
+	startWaiting(sessionsDir, "session-a", "permission", 6_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), {
+		"session-a.json": { turnStartedAt: 1_000, toolsFinishedAt: 5_000, waiting: { for: "permission", since: 6_000 } },
+	});
 });
 
 test("tools finishing in an unknown session does nothing", () => {
 	const sessionsDir = temporarySessionsDir();
 
-	stopWaiting(sessionsDir, "never-started");
+	stopWaiting(sessionsDir, "never-started", 4_000);
 
 	assert.deepEqual(sessionFiles(sessionsDir), {});
 });

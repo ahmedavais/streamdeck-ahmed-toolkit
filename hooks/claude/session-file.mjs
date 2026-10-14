@@ -13,15 +13,21 @@ export function endTurn(sessionsDir, sessionId, now) {
 }
 
 export function startWaiting(sessionsDir, sessionId, reason, now) {
-	updateSession(sessionsDir, sessionId, (session) => ({ ...session, waiting: { for: reason, since: now } }));
+	updateSession(sessionsDir, sessionId, (session) =>
+		answeredBefore(session, now) ? session : { ...session, waiting: { for: reason, since: now } },
+	);
 }
 
-export function stopWaiting(sessionsDir, sessionId) {
-	updateSession(sessionsDir, sessionId, withoutWaiting);
+export function stopWaiting(sessionsDir, sessionId, now) {
+	updateSession(sessionsDir, sessionId, (session) => ({ ...withoutWaiting(session), toolsFinishedAt: now }));
 }
 
 export function endSession(sessionsDir, sessionId) {
 	fs.rmSync(sessionFile(sessionsDir, sessionId), { force: true });
+}
+
+function answeredBefore({ toolsFinishedAt }, notifiedAt) {
+	return toolsFinishedAt !== undefined && toolsFinishedAt > notifiedAt;
 }
 
 function withoutWaiting({ waiting, ...session }) {
