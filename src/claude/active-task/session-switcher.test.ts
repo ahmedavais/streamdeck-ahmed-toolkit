@@ -12,3 +12,13 @@ test("brings the session's app to the front", async () => {
 
 	assert.deepEqual(commands.data, [{ command: "/usr/bin/open", args: ["-b", "com.anthropic.claudefordesktop"], timeoutMs: 5_000 }]);
 });
+
+test("does nothing for a session whose app is unknown", async () => {
+	const runner = CommandRunner.createNull();
+	const commands = runner.trackCommands();
+	const switcher = new SessionSwitcher(runner);
+
+	await switcher.bringForward({ turnStartedAt: 1_000 });
+
+	assert.deepEqual(commands.data, []);
+});
