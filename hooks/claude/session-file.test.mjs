@@ -16,6 +16,14 @@ test("starting a turn records when it started", () => {
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000 } });
 });
 
+test("starting a turn records which app the session runs in", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	startTurn(sessionsDir, "session-a", 1_000, "com.anthropic.claudefordesktop");
+
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, hostApp: "com.anthropic.claudefordesktop" } });
+});
+
 test("ending a turn records when it ended", () => {
 	const sessionsDir = temporarySessionsDir();
 	startTurn(sessionsDir, "session-a", 1_000);
