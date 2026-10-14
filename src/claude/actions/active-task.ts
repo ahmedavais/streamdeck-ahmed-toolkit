@@ -6,7 +6,7 @@ import type { KeyDisplay } from "../../polling-key/poller";
 import { PollingKeyAction } from "../../polling-key/polling-key-action";
 import { SessionSwitcher } from "../active-task/session-switcher";
 import { chooseTurnToDisplay, elapsedOf, isInProgress } from "../active-task/turn-state";
-import { readSessions } from "../sessions/session-store";
+import { readLiveSessions } from "../sessions/live-sessions";
 
 const TICK_INTERVAL_MS = 1_000;
 const IDLE_COLOR = "#3a3a42";
@@ -22,7 +22,7 @@ export class ActiveTask extends PollingKeyAction {
 	}
 
 	override async onKeyDown(ev: KeyDownEvent): Promise<void> {
-		const sessions = readSessions();
+		const sessions = readLiveSessions();
 		const displayed = chooseTurnToDisplay(sessions);
 		if (!displayed) return;
 
@@ -35,7 +35,7 @@ export class ActiveTask extends PollingKeyAction {
 	}
 
 	protected override async check(): Promise<KeyDisplay> {
-		const displayed = chooseTurnToDisplay(readSessions());
+		const displayed = chooseTurnToDisplay(readLiveSessions());
 		if (!displayed) return { title: "", image: renderStateImage(IDLE_COLOR) };
 
 		const { turn } = displayed;

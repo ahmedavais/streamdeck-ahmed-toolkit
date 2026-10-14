@@ -5,7 +5,7 @@ import { PollingKeyAction } from "../../polling-key/polling-key-action";
 import { attentionTitle } from "../needs-attention/attention-title";
 import { mostUrgentWaiting } from "../needs-attention/waiting-state";
 import type { Waiting } from "../sessions/session";
-import { readSessions } from "../sessions/session-store";
+import { readLiveSessions } from "../sessions/live-sessions";
 
 const TICK_INTERVAL_MS = 1_000;
 const NOBODY_WAITING_COLOR = "#3a3a42";
@@ -22,7 +22,7 @@ export class NeedsAttention extends PollingKeyAction {
 	}
 
 	protected override async check(): Promise<KeyDisplay> {
-		const waiting = mostUrgentWaiting(readSessions());
+		const waiting = mostUrgentWaiting(readLiveSessions());
 		if (!waiting) return { title: "", image: renderStateImage(NOBODY_WAITING_COLOR) };
 
 		return { title: attentionTitle(waiting, Date.now()), image: renderStateImage(COLOR_BY_WAITING[waiting.for]) };

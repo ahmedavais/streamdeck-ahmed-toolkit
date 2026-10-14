@@ -1,8 +1,16 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import type { Sessions } from "./session";
+import { readSessions } from "./session-store";
+
+const CLAUDE_SESSION_REGISTRY = path.join(os.homedir(), ".claude", "sessions");
 
 type RegistryEntry = { pid: number; sessionId: string };
+
+export function readLiveSessions(): Sessions {
+	return onlyLive(readSessions(), liveSessionIds(CLAUDE_SESSION_REGISTRY, isRunning));
+}
 
 export function liveSessionIds(registryDir: string, isRunning: (pid: number) => boolean): Set<string> | undefined {
 	if (!fs.existsSync(registryDir)) return undefined;
