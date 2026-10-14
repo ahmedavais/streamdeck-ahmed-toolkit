@@ -1,5 +1,5 @@
 import { CommandRunner, type CommandResult } from "../../infrastructure/command-runner";
-import { claudeCli } from "./claude-cli";
+import { claudeCli } from "../claude-cli";
 import { parseServerStatuses, type ServerStatus } from "./server-status";
 
 const PROBE_TIMEOUT_MS = 40 * 1000;
