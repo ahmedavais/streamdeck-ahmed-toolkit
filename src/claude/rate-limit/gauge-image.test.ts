@@ -50,6 +50,14 @@ test("leaves the reset line off when the reset time is unknown", () => {
 	assert.doesNotMatch(svg, /↻/);
 });
 
+test("leaves the reset line off once the reset time has passed", () => {
+	const resetsAt = 1_792_378_800_000;
+
+	const svg = svgOf(renderGaugeImage({ usage: 0.33, resetsAt }, "stale", resetsAt + 60_000));
+
+	assert.doesNotMatch(svg, /↻/);
+});
+
 function svgOf(dataUri: string): string {
 	return Buffer.from(dataUri.replace("data:image/svg+xml;base64,", ""), "base64").toString("utf8");
 }

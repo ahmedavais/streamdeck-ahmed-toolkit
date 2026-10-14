@@ -31,7 +31,7 @@ export function renderGaugeImage(snapshot: RateLimitSnapshot, freshness: Freshne
 }
 
 function resetLine({ resetsAt }: RateLimitSnapshot, now: number): string {
-	if (resetsAt === undefined) return "";
+	if (resetsAt === undefined || resetsAt <= now) return "";
 
 	return `<text x="72" y="118" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="${RESET_GREY}" text-anchor="middle">↻ ${formatCountdown(resetsAt - now)}</text>`;
 }
