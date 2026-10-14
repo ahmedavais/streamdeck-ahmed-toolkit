@@ -24,8 +24,14 @@ export function renderGaugeImage(snapshot: RateLimitSnapshot, freshness: Freshne
 	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144">
 		<rect width="144" height="144" fill="#1e1e23"/>
 		<text x="72" y="80" font-family="Helvetica, Arial, sans-serif" font-size="36" font-weight="700" fill="${color}" text-anchor="middle">${formatPercent(snapshot.usage)}</text>
-		<text x="72" y="118" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="${RESET_GREY}" text-anchor="middle">↻ ${formatCountdown(snapshot.resetsAt! - now)}</text>
+		${resetLine(snapshot, now)}
 	</svg>`;
 
 	return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+}
+
+function resetLine({ resetsAt }: RateLimitSnapshot, now: number): string {
+	if (resetsAt === undefined) return "";
+
+	return `<text x="72" y="118" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="${RESET_GREY}" text-anchor="middle">↻ ${formatCountdown(resetsAt - now)}</text>`;
 }

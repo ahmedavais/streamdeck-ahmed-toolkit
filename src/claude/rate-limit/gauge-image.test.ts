@@ -44,6 +44,12 @@ test("shows how long until the weekly window resets under the percentage", () =>
 	assert.match(svg, />↻ 5d 1h</);
 });
 
+test("leaves the reset line off when the reset time is unknown", () => {
+	const svg = svgOf(renderGaugeImage({ usage: 0.25 }, "fresh", IRRELEVANT_NOW));
+
+	assert.doesNotMatch(svg, /↻/);
+});
+
 function svgOf(dataUri: string): string {
 	return Buffer.from(dataUri.replace("data:image/svg+xml;base64,", ""), "base64").toString("utf8");
 }
