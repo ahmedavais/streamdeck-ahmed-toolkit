@@ -42,6 +42,18 @@ test("a server with an unrecognized status is named as a warning", () => {
 	});
 });
 
+test("an unrecognized status outranks needing authentication", () => {
+	assert.equal(summarizeServerStatuses(statuses("needs-authentication", "unknown")).label, "server-1\n? +1");
+});
+
+test("needing authentication outranks awaiting approval", () => {
+	assert.equal(summarizeServerStatuses(statuses("pending-approval", "needs-authentication")).label, "server-1\nauth +1");
+});
+
+test("the first listed wins among servers with the same health", () => {
+	assert.equal(summarizeServerStatuses(statuses("failed", "failed")).label, "server-0\nfail +1");
+});
+
 test("no configured servers is neither healthy nor broken", () => {
 	assert.deepEqual(summarizeServerStatuses([]), { label: "none", severity: "unknown" });
 });
