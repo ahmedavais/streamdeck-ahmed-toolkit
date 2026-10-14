@@ -60,6 +60,12 @@ test("a process that has exited isn't running", async () => {
 	assert.equal(isRunning(exited.pid!), false);
 });
 
+test("forgets waiting recorded before the session's process started", () => {
+	const sessions = { "session-resumed": { turnStartedAt: 1_000, waiting: { for: "permission" as const, since: 2_000 } } };
+
+	assert.deepEqual(onlyLive(sessions, new Map([["session-resumed", 5_000]])), { "session-resumed": { turnStartedAt: 1_000 } });
+});
+
 function registryHolding(files: Record<string, unknown>): string {
 	const registryDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-registry-"));
 	for (const [name, content] of Object.entries(files)) {

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { Sessions } from "./session";
+import type { Session, Sessions } from "./session";
 import { readSessions } from "./session-store";
 
 const CLAUDE_SESSION_REGISTRY = path.join(os.homedir(), ".claude", "sessions");
@@ -24,7 +24,19 @@ export function liveProcesses(registryDir: string, isRunning: (pid: number) => b
 export function onlyLive(sessions: Sessions, live: LiveProcesses | undefined): Sessions {
 	if (!live) return sessions;
 
-	return Object.fromEntries(Object.entries(sessions).filter(([sessionId]) => live.has(sessionId)));
+	return Object.fromEntries(
+		Object.entries(sessions).flatMap(([sessionId, session]) => {
+			const processStartedAt = live.get(sessionId);
+			return processStartedAt === undefined ? [] : [[sessionId, withoutWaitingFromBefore(processStartedAt, session)]];
+		}),
+	);
+}
+
+function withoutWaitingFromBefore(processStartedAt: number, session: Session): Session {
+	if (!session.waiting || session.waiting.since >= processStartedAt) return session;
+
+	const { waiting, ...current } = session;
+	return current;
 }
 
 function registryEntriesIn(registryDir: string): RegistryEntry[] {
