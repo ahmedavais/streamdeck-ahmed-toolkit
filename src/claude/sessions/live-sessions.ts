@@ -12,7 +12,9 @@ export function liveSessionIds(registryDir: string, isRunning: (pid: number) => 
 }
 
 export function onlyLive(sessions: Sessions, liveIds: Set<string> | undefined): Sessions {
-	return Object.fromEntries(Object.entries(sessions).filter(([sessionId]) => liveIds!.has(sessionId)));
+	if (!liveIds) return sessions;
+
+	return Object.fromEntries(Object.entries(sessions).filter(([sessionId]) => liveIds.has(sessionId)));
 }
 
 function registryEntriesIn(registryDir: string): RegistryEntry[] {

@@ -41,6 +41,12 @@ test("keeps only live sessions", () => {
 	assert.deepEqual(onlyLive(sessions, new Set(["session-live"])), { "session-live": { turnStartedAt: 1_000 } });
 });
 
+test("keeps every session when liveness is unknown", () => {
+	const sessions = { "session-a": { turnStartedAt: 1_000 }, "session-b": { turnStartedAt: 2_000 } };
+
+	assert.deepEqual(onlyLive(sessions, undefined), sessions);
+});
+
 function registryHolding(files: Record<string, unknown>): string {
 	const registryDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-registry-"));
 	for (const [name, content] of Object.entries(files)) {
