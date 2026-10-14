@@ -29,6 +29,12 @@ test("fails, sending nothing, when no project folder is set", async () => {
 	assert.deepEqual(commands.data, []);
 });
 
+test("fails, naming the folder, when the CLI exits with an error", async () => {
+	await assert.rejects(start("/Users/someone/gone", { stdout: "No such folder", exitCode: 1, timedOut: false }), {
+		message: "Could not open /Users/someone/gone in Claude Desktop: claude exited with code 1",
+	});
+});
+
 async function start(projectFolder: string | undefined, result?: NulledCommandResult) {
 	const runner = CommandRunner.createNull(result);
 	const commands = runner.trackCommands();

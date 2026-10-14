@@ -13,7 +13,9 @@ export class SessionStarter {
 	async start(projectFolder: string | undefined): Promise<void> {
 		if (!projectFolder) throw new Error("No project folder set for this key");
 
-		await this.runner.run(PSEUDO_TERMINAL, ["-q", "/dev/null", this.locateCli(), "--desktop"], START_TIMEOUT_MS, { cwd: this.expandHome(projectFolder) });
+		const folder = this.expandHome(projectFolder);
+		const { exitCode } = await this.runner.run(PSEUDO_TERMINAL, ["-q", "/dev/null", this.locateCli(), "--desktop"], START_TIMEOUT_MS, { cwd: folder });
+		if (exitCode !== 0) throw new Error(`Could not open ${folder} in Claude Desktop: claude exited with code ${exitCode}`);
 	}
 
 	private expandHome(folder: string): string {
