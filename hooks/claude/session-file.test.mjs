@@ -72,6 +72,14 @@ test("tools finishing clears the waiting", () => {
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000 } });
 });
 
+test("tools finishing in an unknown session does nothing", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	stopWaiting(sessionsDir, "never-started");
+
+	assert.deepEqual(sessionFiles(sessionsDir), {});
+});
+
 test("ending a session removes its file", () => {
 	const sessionsDir = temporarySessionsDir();
 	startTurn(sessionsDir, "session-a", 1_000);
