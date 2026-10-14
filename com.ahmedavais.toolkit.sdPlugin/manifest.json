@@ -22,7 +22,7 @@
 			"Name": "Active Task",
 			"UUID": "com.ahmedavais.toolkit.claude.active-task",
 			"Icon": "imgs/actions/active-task/icon",
-			"Tooltip": "Shows elapsed time for your longest-running Claude Code session.",
+			"Tooltip": "Shows elapsed time for your longest-running Claude Code session. Press to bring its app to the front.",
 			"Controllers": [
 				"Keypad"
 			],

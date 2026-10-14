@@ -1,8 +1,10 @@
-import { action } from "@elgato/streamdeck";
+import { action, KeyDownEvent } from "@elgato/streamdeck";
+import { Log } from "../../infrastructure/log";
 import { renderStateImage } from "../../key-image/state-image";
+import { formatElapsed } from "../../key-title/elapsed";
 import type { KeyDisplay } from "../../polling-key/poller";
 import { PollingKeyAction } from "../../polling-key/polling-key-action";
-import { formatElapsed } from "../../key-title/elapsed";
+import { SessionSwitcher } from "../active-task/session-switcher";
 import { chooseTurnToDisplay, elapsedOf, isInProgress } from "../active-task/turn-state";
 import { readSessions } from "../sessions/session-store";
 
@@ -12,8 +14,24 @@ const WORKING_COLOR = "#2f6fed";
 
 @action({ UUID: "com.ahmedavais.toolkit.claude.active-task" })
 export class ActiveTask extends PollingKeyAction {
+	private readonly log = Log.create();
+	private readonly switcher = SessionSwitcher.create();
+
 	constructor() {
 		super({ name: "active task", everyMs: TICK_INTERVAL_MS });
+	}
+
+	override async onKeyDown(ev: KeyDownEvent): Promise<void> {
+		const sessions = readSessions();
+		const displayed = chooseTurnToDisplay(sessions);
+		if (!displayed) return;
+
+		try {
+			await this.switcher.bringForward(sessions[displayed.sessionId]);
+		} catch (failure) {
+			this.log.error((failure as Error).message);
+			await ev.action.showAlert();
+		}
 	}
 
 	protected override async check(): Promise<KeyDisplay> {

@@ -5,7 +5,7 @@ Custom Stream Deck actions for macOS. The current set shows live Claude Code sta
 ## Actions
 
 - Usage Gauge shows your weekly Claude Code rate-limit utilization as a percentage, colored green, yellow or red. It falls back to overage utilization when the weekly figure is missing. When a probe fails, it keeps the last percentage and draws it in grey until the next probe succeeds.
-- Active Task shows how long your longest-running Claude Code turn has been going, on a blue key. When no turn is running, it shows how long your last turn took, on a grey key. It needs the Claude Code hooks below.
+- Active Task shows how long your longest-running Claude Code turn has been going, on a blue key. When no turn is running, it shows how long your last turn took, on a grey key. Press it to bring that session's app to the front, whether that's the Claude desktop app or a terminal. It brings the app forward, not a specific tab or window. It needs the Claude Code hooks below.
 - Needs Attention lights up when a Claude Code session is waiting on you. An orange key says "Approve" for a permission prompt, and a yellow key says "Reply" when a session has sat idle waiting for your next prompt. Below the word it shows how long it has been waiting. With several sessions waiting, a permission prompt wins over a reply, then the longest wait. It needs the Claude Code hooks below.
 - MCP Status counts your MCP servers by health, for example "3 ok / 1 auth", based on `claude mcp list`. The key turns green when all are connected, red when any failed, and yellow otherwise. A grey "?" means the check itself failed. Press the key to re-check now.
 
@@ -51,7 +51,7 @@ Active Task and Needs Attention read session state that five Claude Code hooks w
 }
 ```
 
-`turn-started` records when you submit a prompt, `turn-ended` records when Claude stops, and `session-end` removes the session's file. `notified` records that the session is waiting for your approval or reply. Claude Code has no hook for "you answered the permission prompt", so `tools-finished` clears the waiting once the approved tools have run. Ending or starting a turn clears it too, which covers a denied prompt and a reply to an idle session. Each session's hooks write only that session's file, replacing it in one rename, so concurrent sessions can't overwrite each other and the plugin never reads half a file.
+`turn-started` records when you submit a prompt and which app the session runs in (from macOS's `__CFBundleIdentifier`), `turn-ended` records when Claude stops, and `session-end` removes the session's file. `notified` records that the session is waiting for your approval or reply. Claude Code has no hook for "you answered the permission prompt", so `tools-finished` clears the waiting once the approved tools have run. Ending or starting a turn clears it too, which covers a denied prompt and a reply to an idle session. Each session's hooks write only that session's file, replacing it in one rename, so concurrent sessions can't overwrite each other and the plugin never reads half a file.
 
 ## How it works
 
