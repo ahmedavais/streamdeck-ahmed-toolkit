@@ -9,3 +9,7 @@ test("a permission prompt notification means waiting for permission", () => {
 test("an idle prompt notification means waiting for input", () => {
 	assert.equal(waitingReasonFor("idle_prompt"), "input");
 });
+
+test("other notifications mean nothing to wait for", () => {
+	assert.equal(waitingReasonFor("auth_success"), undefined);
+});
