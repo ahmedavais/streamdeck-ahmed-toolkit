@@ -78,5 +78,12 @@ function probeResponsesReporting(readings: NulledReading | NulledReading[] | und
 
 function probeResponseReporting(reading: NulledReading): NulledHttpResponse {
 	if ("unavailable" in reading) return { networkError: "Nulled RateLimitClient: rate limits unavailable" };
-	return { status: 200, headers: { "anthropic-ratelimit-unified-7d-utilization": String(reading.usage) }, body: "{}" };
+	return { status: 200, headers: rateLimitHeadersReporting(reading), body: "{}" };
+}
+
+function rateLimitHeadersReporting({ usage, resetsAt }: RateLimitSnapshot): Record<string, string> {
+	const utilization = { "anthropic-ratelimit-unified-7d-utilization": String(usage) };
+	if (resetsAt === undefined) return utilization;
+
+	return { ...utilization, "anthropic-ratelimit-unified-7d-reset": String(resetsAt / 1000) };
 }

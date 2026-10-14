@@ -89,6 +89,12 @@ test("a nulled client reports the configured usage", async () => {
 	assert.deepEqual(await client.fetchSnapshot(), { usage: 0.42 });
 });
 
+test("a nulled client reports the configured reset time", async () => {
+	const client = RateLimitClient.createNull({ usage: 0.42, resetsAt: 1_792_378_800_000 });
+
+	assert.deepEqual(await client.fetchSnapshot(), { usage: 0.42, resetsAt: 1_792_378_800_000 });
+});
+
 test("a nulled client reports nothing when rate limits are unavailable", async () => {
 	const client = RateLimitClient.createNull({ unavailable: true });
 
