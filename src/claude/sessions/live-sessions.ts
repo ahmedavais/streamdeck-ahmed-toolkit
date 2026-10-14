@@ -9,5 +9,5 @@ export function liveSessionIds(registryDir: string, isRunning: (pid: number) => 
 		.filter((name) => name.endsWith(".json"))
 		.map((name) => JSON.parse(fs.readFileSync(path.join(registryDir, name), "utf8")) as RegistryEntry);
 
-	return new Set(entries.map(({ sessionId }) => sessionId));
+	return new Set(entries.filter(({ pid }) => isRunning(pid)).map(({ sessionId }) => sessionId));
 }

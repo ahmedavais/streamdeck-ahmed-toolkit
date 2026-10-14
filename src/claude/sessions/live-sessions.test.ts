@@ -11,6 +11,15 @@ test("lists the sessions whose Claude Code process is running", () => {
 	assert.deepEqual(liveSessionIds(registryDir, () => true), new Set(["session-a"]));
 });
 
+test("leaves out a session whose process has exited", () => {
+	const registryDir = registryHolding({
+		"5011.json": { pid: 5011, sessionId: "session-running" },
+		"4242.json": { pid: 4242, sessionId: "session-exited" },
+	});
+
+	assert.deepEqual(liveSessionIds(registryDir, (pid) => pid === 5011), new Set(["session-running"]));
+});
+
 function registryHolding(files: Record<string, unknown>): string {
 	const registryDir = fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-registry-"));
 	for (const [name, content] of Object.entries(files)) {
