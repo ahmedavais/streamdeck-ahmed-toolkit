@@ -1,5 +1,6 @@
 export type RateLimitSnapshot = {
 	usage: number;
+	resetsAt?: number;
 };
 
 // anthropic-ratelimit-unified-* is an undocumented header family and can change without notice;
@@ -8,7 +9,7 @@ export type RateLimitSnapshot = {
 export function parseSnapshot(headers: Headers): RateLimitSnapshot | undefined {
 	const sevenDay = headers.get("anthropic-ratelimit-unified-7d-utilization");
 	if (sevenDay !== null) {
-		return { usage: Number(sevenDay) };
+		return { usage: Number(sevenDay), ...weeklyResetIn(headers) };
 	}
 
 	const overage = headers.get("anthropic-ratelimit-unified-overage-utilization");
@@ -17,4 +18,9 @@ export function parseSnapshot(headers: Headers): RateLimitSnapshot | undefined {
 	}
 
 	return undefined;
+}
+
+function weeklyResetIn(headers: Headers): Pick<RateLimitSnapshot, "resetsAt"> {
+	const resetSeconds = headers.get("anthropic-ratelimit-unified-7d-reset");
+	return resetSeconds === null ? {} : { resetsAt: Number(resetSeconds) * 1000 };
 }

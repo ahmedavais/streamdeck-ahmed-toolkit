@@ -11,6 +11,15 @@ test("reads weekly utilization when the 7d window is reported", () => {
 	assert.deepEqual(parseSnapshot(headers), { usage: 0.17 });
 });
 
+test("reads when the weekly window resets", () => {
+	const headers = new Headers({
+		"anthropic-ratelimit-unified-7d-utilization": "0.33",
+		"anthropic-ratelimit-unified-7d-reset": "1792378800",
+	});
+
+	assert.deepEqual(parseSnapshot(headers), { usage: 0.33, resetsAt: 1_792_378_800_000 });
+});
+
 test("falls back to overage utilization when the 7d window is absent", () => {
 	const headers = new Headers({
 		"anthropic-ratelimit-unified-overage-utilization": "0.25",
