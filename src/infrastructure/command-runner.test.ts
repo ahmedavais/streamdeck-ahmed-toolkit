@@ -101,3 +101,12 @@ test("tracks the commands it runs", async () => {
 
 	assert.deepEqual(commands.data, [{ command: "/usr/local/bin/claude", args: ["mcp", "list"], timeoutMs: 40_000 }]);
 });
+
+test("tracks the folder a command runs in", async () => {
+	const runner = CommandRunner.createNull();
+	const commands = runner.trackCommands();
+
+	await runner.run("/usr/bin/true", [], 1_000, { cwd: "/Users/someone/project" });
+
+	assert.deepEqual(commands.data, [{ command: "/usr/bin/true", args: [], timeoutMs: 1_000, cwd: "/Users/someone/project" }]);
+});

@@ -5,7 +5,7 @@ import { OutputListener, type OutputTracker } from "./output-listener";
 
 export type CommandResult = { stdout: string; exitCode: number | null; timedOut: boolean };
 
-export type CommandRun = { command: string; args: string[]; timeoutMs: number };
+export type CommandRun = { command: string; args: string[]; timeoutMs: number } & RunOptions;
 
 export type RunOptions = { cwd?: string };
 
@@ -33,7 +33,7 @@ export class CommandRunner {
 	}
 
 	async run(command: string, args: string[], timeoutMs: number, options: RunOptions = {}): Promise<CommandResult> {
-		this.commands.emit({ command, args, timeoutMs });
+		this.commands.emit({ command, args, timeoutMs, ...options });
 		try {
 			const { stdout } = await this.runProcess(command, args, { encoding: "utf8", timeout: timeoutMs, cwd: options.cwd });
 			return { stdout, exitCode: 0, timedOut: false };
