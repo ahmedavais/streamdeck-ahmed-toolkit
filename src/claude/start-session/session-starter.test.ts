@@ -20,6 +20,15 @@ test("expands ~ to the home folder", async () => {
 	assert.equal(commands.data[0].cwd, "/Users/someone/projects/toolkit");
 });
 
+test("fails, sending nothing, when no project folder is set", async () => {
+	const runner = CommandRunner.createNull();
+	const commands = runner.trackCommands();
+	const starter = new SessionStarter(runner, () => CLI, HOME);
+
+	await assert.rejects(starter.start(""), { message: "No project folder set for this key" });
+	assert.deepEqual(commands.data, []);
+});
+
 async function start(projectFolder: string | undefined, result?: NulledCommandResult) {
 	const runner = CommandRunner.createNull(result);
 	const commands = runner.trackCommands();
