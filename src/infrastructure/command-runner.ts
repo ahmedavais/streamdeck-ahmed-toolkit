@@ -7,11 +7,13 @@ export type CommandResult = { stdout: string; exitCode: number | null; timedOut:
 
 export type CommandRun = { command: string; args: string[]; timeoutMs: number };
 
+export type RunOptions = { cwd?: string };
+
 export type NulledCommandResult = CommandResult | { cannotStart: true };
 
 type ProcessFailure = Error & { code?: number | string | null; killed?: boolean; stdout?: string };
 
-type RunProcess = (command: string, args: string[], options: { encoding: "utf8"; timeout: number }) => Promise<{ stdout: string }>;
+type RunProcess = (command: string, args: string[], options: { encoding: "utf8"; timeout: number; cwd?: string }) => Promise<{ stdout: string }>;
 
 export class CommandRunner {
 	static create(): CommandRunner {
@@ -30,10 +32,10 @@ export class CommandRunner {
 		return this.commands.trackOutput();
 	}
 
-	async run(command: string, args: string[], timeoutMs: number): Promise<CommandResult> {
+	async run(command: string, args: string[], timeoutMs: number, options: RunOptions = {}): Promise<CommandResult> {
 		this.commands.emit({ command, args, timeoutMs });
 		try {
-			const { stdout } = await this.runProcess(command, args, { encoding: "utf8", timeout: timeoutMs });
+			const { stdout } = await this.runProcess(command, args, { encoding: "utf8", timeout: timeoutMs, cwd: options.cwd });
 			return { stdout, exitCode: 0, timedOut: false };
 		} catch (failure) {
 			return resultOfFailed(command, failure as ProcessFailure);

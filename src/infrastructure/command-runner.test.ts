@@ -31,6 +31,15 @@ test("returns the partial output of a command that runs past its timeout", async
 	assert.deepEqual(result, { stdout: "slow start", exitCode: null, timedOut: true });
 });
 
+test("runs a command in the folder it is given", async () => {
+	const runner = CommandRunner.create();
+	const folder = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-cwd-")));
+
+	const result = await runner.run(process.execPath, ["-e", "process.stdout.write(process.cwd())"], IRRELEVANT_TIMEOUT_MS, { cwd: folder });
+
+	assert.equal(result.stdout, folder);
+});
+
 test("fails, naming the command, when it can't be started", async () => {
 	const runner = CommandRunner.create();
 
