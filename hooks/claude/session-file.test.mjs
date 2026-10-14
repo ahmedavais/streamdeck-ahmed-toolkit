@@ -90,6 +90,17 @@ test("ending a turn clears the waiting", () => {
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, turnEndedAt: 4_000 } });
 });
 
+test("starting a turn clears the waiting", () => {
+	const sessionsDir = temporarySessionsDir();
+	startTurn(sessionsDir, "session-a", 1_000);
+	endTurn(sessionsDir, "session-a", 4_000);
+	startWaiting(sessionsDir, "session-a", "input", 5_000);
+
+	startTurn(sessionsDir, "session-a", 9_000);
+
+	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 9_000 } });
+});
+
 test("ending a session removes its file", () => {
 	const sessionsDir = temporarySessionsDir();
 	startTurn(sessionsDir, "session-a", 1_000);
@@ -131,6 +142,17 @@ test("the plugin reads the turns the hooks write", () => {
 	assert.deepEqual(readSessions(sessionsDir), {
 		"session-a": { turnStartedAt: 1_000, turnEndedAt: 4_000 },
 		"session-b": { turnStartedAt: 2_000 },
+	});
+});
+
+test("the plugin reads the waiting the hooks write", () => {
+	const sessionsDir = temporarySessionsDir();
+
+	startTurn(sessionsDir, "session-a", 1_000);
+	startWaiting(sessionsDir, "session-a", "permission", 3_000);
+
+	assert.deepEqual(readSessions(sessionsDir), {
+		"session-a": { turnStartedAt: 1_000, waiting: { for: "permission", since: 3_000 } },
 	});
 });
 
