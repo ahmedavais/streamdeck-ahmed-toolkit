@@ -23,3 +23,13 @@ test("a permission prompt beats waiting for input", () => {
 
 	assert.deepEqual(mostUrgentWaiting(sessions), { for: "permission", since: 5_000 });
 });
+
+test("the longest wait wins among the same kind", () => {
+	const sessions = {
+		"session-recent": { turnStartedAt: 1_000, waiting: { for: "permission" as const, since: 6_000 } },
+		"session-longest": { turnStartedAt: 1_000, waiting: { for: "permission" as const, since: 2_000 } },
+		"session-middle": { turnStartedAt: 1_000, waiting: { for: "permission" as const, since: 4_000 } },
+	};
+
+	assert.deepEqual(mostUrgentWaiting(sessions), { for: "permission", since: 2_000 });
+});

@@ -1,9 +1,17 @@
 import type { Sessions, Waiting } from "../sessions/session";
 
+const URGENCY_OF: Record<Waiting["for"], number> = { permission: 0, input: 1 };
+
 export function mostUrgentWaiting(sessions: Sessions): Waiting | undefined {
-	const waitings = Object.values(sessions)
+	return waitingsIn(sessions).sort(byUrgency)[0];
+}
+
+function waitingsIn(sessions: Sessions): Waiting[] {
+	return Object.values(sessions)
 		.map((session) => session.waiting)
 		.filter((waiting): waiting is Waiting => waiting !== undefined);
+}
 
-	return waitings.find((waiting) => waiting.for === "permission") ?? waitings[0];
+function byUrgency(first: Waiting, second: Waiting): number {
+	return URGENCY_OF[first.for] - URGENCY_OF[second.for] || first.since - second.since;
 }
