@@ -11,6 +11,10 @@ export class SessionStarter {
 	) {}
 
 	async start(projectFolder: string | undefined): Promise<void> {
-		await this.runner.run(PSEUDO_TERMINAL, ["-q", "/dev/null", this.locateCli(), "--desktop"], START_TIMEOUT_MS, { cwd: projectFolder });
+		await this.runner.run(PSEUDO_TERMINAL, ["-q", "/dev/null", this.locateCli(), "--desktop"], START_TIMEOUT_MS, { cwd: this.expandHome(projectFolder!) });
+	}
+
+	private expandHome(folder: string): string {
+		return folder.replace(/^~(?=\/|$)/, this.home);
 	}
 }

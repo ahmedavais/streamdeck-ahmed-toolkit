@@ -14,6 +14,12 @@ test("opens the project folder in Claude Desktop through a pseudo-terminal", asy
 	]);
 });
 
+test("expands ~ to the home folder", async () => {
+	const { commands } = await start("~/projects/toolkit");
+
+	assert.equal(commands.data[0].cwd, "/Users/someone/projects/toolkit");
+});
+
 async function start(projectFolder: string | undefined, result?: NulledCommandResult) {
 	const runner = CommandRunner.createNull(result);
 	const commands = runner.trackCommands();
