@@ -75,6 +75,7 @@
 			"States": [
 				{
 					"Image": "imgs/actions/start-session/key",
+					"Title": "New session",
 					"TitleAlignment": "bottom"
 				}
 			]

@@ -9,6 +9,7 @@ import { readLiveSessions } from "../sessions/live-sessions";
 
 const TICK_INTERVAL_MS = 1_000;
 const NOBODY_WAITING_COLOR = "#3a3a42";
+const NOBODY_WAITING_TITLE = "All clear";
 
 const COLOR_BY_WAITING: Record<Waiting["for"], string> = {
 	permission: "#d96a1e",
@@ -23,7 +24,7 @@ export class NeedsAttention extends PollingKeyAction {
 
 	protected override async check(): Promise<KeyDisplay> {
 		const waiting = mostUrgentWaiting(readLiveSessions());
-		if (!waiting) return { title: "", image: renderStateImage(NOBODY_WAITING_COLOR) };
+		if (!waiting) return { title: NOBODY_WAITING_TITLE, image: renderStateImage(NOBODY_WAITING_COLOR) };
 
 		return { title: attentionTitle(waiting, Date.now()), image: renderStateImage(COLOR_BY_WAITING[waiting.for]) };
 	}

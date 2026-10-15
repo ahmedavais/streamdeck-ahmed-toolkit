@@ -10,6 +10,7 @@ import { readLiveSessions } from "../sessions/live-sessions";
 
 const TICK_INTERVAL_MS = 1_000;
 const IDLE_COLOR = "#3a3a42";
+const IDLE_TITLE = "Idle";
 const WORKING_COLOR = "#2f6fed";
 
 @action({ UUID: "com.ahmedavais.toolkit.claude.active-task" })
@@ -36,7 +37,7 @@ export class ActiveTask extends PollingKeyAction {
 
 	protected override async check(): Promise<KeyDisplay> {
 		const displayed = chooseTurnToDisplay(readLiveSessions());
-		if (!displayed) return { title: "", image: renderStateImage(IDLE_COLOR) };
+		if (!displayed) return { title: IDLE_TITLE, image: renderStateImage(IDLE_COLOR) };
 
 		const { turn } = displayed;
 		return {
