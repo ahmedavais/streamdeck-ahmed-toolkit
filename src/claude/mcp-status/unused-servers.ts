@@ -5,5 +5,5 @@ export function withoutUnusedServers(statuses: ServerStatus[], everConnected: Se
 }
 
 function isUnused({ name, health }: ServerStatus, everConnected: Set<string>): boolean {
-	return health === "needs-authentication" && !everConnected.has(name);
+	return health === "disabled" || (health === "needs-authentication" && !everConnected.has(name));
 }

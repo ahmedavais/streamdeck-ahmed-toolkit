@@ -31,3 +31,9 @@ test("keeps connected servers", () => {
 
 	assert.deepEqual(withoutUnusedServers(statuses, new Set()), statuses);
 });
+
+test("drops a server disabled for this project", () => {
+	const statuses = [{ name: "Atlan", health: "disabled" as const }];
+
+	assert.deepEqual(withoutUnusedServers(statuses, new Set(["Atlan"])), []);
+});
