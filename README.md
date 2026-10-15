@@ -7,7 +7,6 @@ Custom Stream Deck actions for macOS. The current set shows live Claude Code sta
 - Usage Gauge shows your weekly Claude Code rate-limit utilization as a percentage, colored green, yellow or red, with how long until the weekly window resets underneath, for example "↻ 5d 1h". It falls back to overage utilization when the weekly figure is missing, and then leaves the reset line off because the API sends no overage reset time. When a probe fails, it keeps the last percentage and draws it in grey until the next probe succeeds.
 - Active Task shows how long your longest-running Claude Code turn has been going, on a blue key. When no turn is running, it shows how long your last turn took, on a grey key, and "Idle" when there is no live session at all. Press it to bring that session's app to the front, whether that's the Claude desktop app or a terminal. It brings the app forward, not a specific tab or window. It needs the Claude Code hooks below.
 - Needs Attention lights up when a Claude Code session is waiting on you. An orange key says "Approve" for a permission prompt, and a yellow key says "Reply" when a session has sat idle waiting for your next prompt. Below the word it shows how long it has been waiting. When nobody is waiting, the grey key says "All clear". With several sessions waiting, a permission prompt wins over a reply, then the longest wait. It needs the Claude Code hooks below.
-- Start Session opens a new Claude Code session in the Claude desktop app, in the project folder you set in the key's settings. `~` works as your home folder. Add one key per project and give each a title. A new key is titled "New session" until you change it. A failed start shows a warning on the key and logs why.
 - MCP Status checks your MCP servers with `claude mcp list`. When all are connected it shows how many, for example "11 ok", on a green key. Otherwise it names the worst server and what's wrong with it, for example "Miro / auth", with "+2" when more servers are unhealthy. The key turns red when any failed and yellow otherwise. Failed outranks an unrecognized status, which outranks needing authentication, which outranks awaiting approval. Names lose their `claude.ai ` or `plugin:<name>:` prefix to fit the key, and the full list of unhealthy servers goes to the plugin log. A server that needs authentication is ignored until it has connected at least once, so connectors your organization enabled but you never use don't light the key. The plugin remembers connected servers in `~/.streamdeck-ahmed-toolkit/connected-servers.json`. Servers disabled for the project are ignored too. Ignored servers stay out of the plugin log as well. The log gets one line whenever the result changes, for example "MCP servers all connected: 13" or "MCP servers not connected: Slack (needs-authentication)", and the same line again once an hour, so a quiet log still shows the key is checking. A grey "?" means the check itself failed. Press the key to re-check now.
 
 ## Requirements
@@ -57,10 +56,6 @@ Active Task and Needs Attention read session state that five Claude Code hooks w
 
 Each session's hooks write only that session's file, replacing it in one rename, so concurrent sessions can't overwrite each other and the plugin never reads half a file.
 
-## Using the keys from an AI assistant
-
-Stream Deck 7.4 and later can hand keys to AI assistants through Elgato's MCP server, so Claude Desktop can press them for you. Turn on MCP Deck under Preferences > General, put Start Session keys on the "MCP Actions" profile it creates, and describe each one, for example "start a Claude session in my toolkit repo". Then follow Elgato's [Stream Deck MCP setup](https://www.elgato.com/ww/en/explorer/products/stream-deck/sd-mcp-setup/) to connect Claude Desktop. The assistant can only press keys. It can't read what the status keys show.
-
 ## How it works
 
 ```
@@ -68,15 +63,12 @@ Claude Code hooks ──writes──► ~/.streamdeck-ahmed-toolkit/sessions/<id
 
 Usage Gauge ──► Keychain "Claude Code-credentials" ──► one-token Haiku request ──► rate-limit headers
 MCP Status  ──► claude mcp list
-Start Session ──► script (a pseudo-terminal) ──► claude --desktop, run in the project folder
 
 Each action extends PollingKeyAction: one Poller per action checks on an interval,
 skips a check while the previous one is running, and paints the result on every visible key.
 ```
 
 The Usage Gauge reads the rate-limit headers from a real API request, so it sends one tiny Haiku request per minute. That request counts against the same limits it measures. The headers it reads are undocumented and may change.
-
-Start Session wraps `claude --desktop` in macOS's `script` command because the CLI refuses to hand off to the desktop app without a terminal, and the plugin has none. This relies on undocumented CLI behavior, so a Claude Code update can break it. The key then shows a warning, and the log has what the CLI printed.
 
 MCP Status parses the human-readable output of `claude mcp list`, which has no machine-readable format. The plugin counts a status it doesn't recognize as "?" and colors the key yellow.
 
