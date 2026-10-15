@@ -52,7 +52,7 @@ export class McpStatus extends PollingKeyAction {
 	}
 
 	private report(statuses: ServerStatus[]): void {
-		const unhealthy = statuses.filter(({ health }) => health !== "connected" && health !== "disabled");
+		const unhealthy = statuses.filter(({ health }) => health !== "connected");
 		if (unhealthy.length === 0) return;
 
 		this.log.info(`MCP servers not connected: ${unhealthy.map(({ name, health }) => `${name} (${health})`).join(", ")}`);
