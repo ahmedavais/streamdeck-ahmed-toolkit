@@ -5,11 +5,13 @@ import type { KeyDisplay } from "../../polling-key/poller";
 import { PollingKeyAction } from "../../polling-key/polling-key-action";
 import { readConnectedServers, rememberConnected } from "../mcp-status/connected-servers";
 import { McpStatusProbe } from "../mcp-status/mcp-status-probe";
+import { ServerReporter } from "../mcp-status/server-report";
 import type { ServerStatus } from "../mcp-status/server-status";
 import { withoutUnusedServers } from "../mcp-status/unused-servers";
 import { summarizeServerStatuses, type Severity, type StatusSummary } from "../mcp-status/status-summary";
 
 const POLL_INTERVAL_MS = 45 * 1000;
+const HEARTBEAT_MS = 60 * 60 * 1000;
 const CHECKING_TITLE = "…";
 const UNREACHABLE: StatusSummary = { label: "?", severity: "unknown" };
 
@@ -24,6 +26,7 @@ const COLOR_BY_SEVERITY: Record<Severity, string> = {
 export class McpStatus extends PollingKeyAction {
 	private readonly log = Log.create();
 	private readonly probe = McpStatusProbe.create();
+	private readonly reporter = new ServerReporter(this.log, HEARTBEAT_MS);
 
 	constructor() {
 		super({ name: "MCP status", everyMs: POLL_INTERVAL_MS, failedDisplay: displayFor(UNREACHABLE) });
@@ -39,7 +42,7 @@ export class McpStatus extends PollingKeyAction {
 		const statuses = await this.probe.serverStatuses();
 		this.remember(statuses);
 		const serversInUse = withoutUnusedServers(statuses, readConnectedServers());
-		this.report(serversInUse);
+		this.reporter.report(serversInUse);
 		return displayFor(summarizeServerStatuses(serversInUse));
 	}
 
@@ -49,13 +52,6 @@ export class McpStatus extends PollingKeyAction {
 		} catch (failure) {
 			this.log.error(`Could not remember connected MCP servers: ${(failure as Error).message}`);
 		}
-	}
-
-	private report(statuses: ServerStatus[]): void {
-		const unhealthy = statuses.filter(({ health }) => health !== "connected");
-		if (unhealthy.length === 0) return;
-
-		this.log.info(`MCP servers not connected: ${unhealthy.map(({ name, health }) => `${name} (${health})`).join(", ")}`);
 	}
 }
 
