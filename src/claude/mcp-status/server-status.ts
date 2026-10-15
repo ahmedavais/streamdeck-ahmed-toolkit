@@ -1,4 +1,4 @@
-export type ServerHealth = "connected" | "needs-authentication" | "pending-approval" | "failed" | "unknown";
+export type ServerHealth = "connected" | "needs-authentication" | "pending-approval" | "failed" | "disabled" | "unknown";
 
 export type ServerStatus = { name: string; health: ServerHealth };
 
@@ -13,6 +13,7 @@ const HEALTH_BY_PHRASE: ReadonlyArray<[string, ServerHealth]> = [
 	["needs authentication", "needs-authentication"],
 	["pending approval", "pending-approval"],
 	["failed to connect", "failed"],
+	["disabled", "disabled"],
 ];
 
 export function parseServerStatuses(output: string): ServerStatus[] {

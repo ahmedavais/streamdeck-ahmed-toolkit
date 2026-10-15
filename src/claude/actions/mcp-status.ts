@@ -3,8 +3,10 @@ import { Log } from "../../infrastructure/log";
 import { renderStateImage } from "../../key-image/state-image";
 import type { KeyDisplay } from "../../polling-key/poller";
 import { PollingKeyAction } from "../../polling-key/polling-key-action";
+import { readConnectedServers, rememberConnected } from "../mcp-status/connected-servers";
 import { McpStatusProbe } from "../mcp-status/mcp-status-probe";
 import type { ServerStatus } from "../mcp-status/server-status";
+import { withoutUnusedServers } from "../mcp-status/unused-servers";
 import { summarizeServerStatuses, type Severity, type StatusSummary } from "../mcp-status/status-summary";
 
 const POLL_INTERVAL_MS = 45 * 1000;
@@ -36,11 +38,20 @@ export class McpStatus extends PollingKeyAction {
 	protected override async check(): Promise<KeyDisplay> {
 		const statuses = await this.probe.serverStatuses();
 		this.report(statuses);
-		return displayFor(summarizeServerStatuses(statuses));
+		this.remember(statuses);
+		return displayFor(summarizeServerStatuses(withoutUnusedServers(statuses, readConnectedServers())));
+	}
+
+	private remember(statuses: ServerStatus[]): void {
+		try {
+			rememberConnected(statuses);
+		} catch (failure) {
+			this.log.error(`Could not remember connected MCP servers: ${(failure as Error).message}`);
+		}
 	}
 
 	private report(statuses: ServerStatus[]): void {
-		const unhealthy = statuses.filter(({ health }) => health !== "connected");
+		const unhealthy = statuses.filter(({ health }) => health !== "connected" && health !== "disabled");
 		if (unhealthy.length === 0) return;
 
 		this.log.info(`MCP servers not connected: ${unhealthy.map(({ name, health }) => `${name} (${health})`).join(", ")}`);

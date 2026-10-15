@@ -69,3 +69,14 @@ test("drops the plugin prefix from a server's name", () => {
 test("no configured servers is neither healthy nor broken", () => {
 	assert.deepEqual(summarizeServerStatuses([]), { label: "none", severity: "unknown" });
 });
+
+test("a disabled server is not a problem", () => {
+	assert.deepEqual(summarizeServerStatuses(statuses("connected", "connected", "disabled")), {
+		label: "2 ok",
+		severity: "ok",
+	});
+});
+
+test("only disabled servers reads as none", () => {
+	assert.deepEqual(summarizeServerStatuses(statuses("disabled")), { label: "none", severity: "unknown" });
+});

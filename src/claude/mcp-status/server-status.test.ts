@@ -64,3 +64,9 @@ test("reads every server in a multi-line listing", () => {
 		["connected", "needs-authentication", "failed"],
 	);
 });
+
+test("reads a server disabled for this project", () => {
+	const output = "claude.ai Atlan: https://mcp.atlan.com/mcp - ⊘ Disabled for this project (re-enable via /mcp)";
+
+	assert.deepEqual(parseServerStatuses(output), [{ name: "claude.ai Atlan", health: "disabled" }]);
+});
