@@ -37,9 +37,10 @@ export class McpStatus extends PollingKeyAction {
 
 	protected override async check(): Promise<KeyDisplay> {
 		const statuses = await this.probe.serverStatuses();
-		this.report(statuses);
 		this.remember(statuses);
-		return displayFor(summarizeServerStatuses(withoutUnusedServers(statuses, readConnectedServers())));
+		const serversInUse = withoutUnusedServers(statuses, readConnectedServers());
+		this.report(serversInUse);
+		return displayFor(summarizeServerStatuses(serversInUse));
 	}
 
 	private remember(statuses: ServerStatus[]): void {
