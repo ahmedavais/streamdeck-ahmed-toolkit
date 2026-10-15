@@ -17,8 +17,7 @@ const SOURCE_PREFIX = /^(claude\.ai |plugin:[^:]+:)/;
 
 const WORST_FIRST: ServerHealth[] = ["failed", "unknown", "needs-authentication", "pending-approval"];
 
-export function summarizeServerStatuses(allStatuses: ServerStatus[]): StatusSummary {
-	const statuses = allStatuses.filter(({ health }) => health !== "disabled");
+export function summarizeServerStatuses(statuses: ServerStatus[]): StatusSummary {
 	if (statuses.length === 0) return { label: "none", severity: "unknown" };
 
 	return { label: labelOf(statuses), severity: severityOf(statuses) };
