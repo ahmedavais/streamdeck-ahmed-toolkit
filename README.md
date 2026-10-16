@@ -45,7 +45,7 @@ Active Task reads session state that three Claude Code hooks write to `~/.stream
 }
 ```
 
-`turn-started` records when you submit a prompt and which app the session runs in (from macOS's `__CFBundleIdentifier`), `turn-ended` records when Claude stops, and `session-end` removes the session's file. The plugin shows only sessions whose Claude Code process is running, according to Claude Code's own registry in `~/.claude/sessions/`. That hides sessions that ended without `session-end` running, for example after a crash. The desktop app stops a session's process while the laptop sleeps and starts a new one when you reopen the session, so a waiting prompt recorded before the current process started is ignored, because that prompt died with the old process. The registry is an undocumented Claude Code file. If it's missing, the plugin shows every session as before.
+`turn-started` records when you submit a prompt and which app the session runs in (from macOS's `__CFBundleIdentifier`), `turn-ended` records when Claude stops, and `session-end` removes the session's file. The plugin shows only sessions whose Claude Code process is running, according to Claude Code's own registry in `~/.claude/sessions/`. That hides sessions that ended without `session-end` running, for example after a crash. The desktop app stops a session's process while the laptop sleeps and starts a new one under the same session when you reopen it, so a sleeping session drops off the key until you reopen it. The registry is an undocumented Claude Code file. If it's missing, the plugin shows every session as before.
 
 Each session's hooks write only that session's file, replacing it in one rename, so concurrent sessions can't overwrite each other and the plugin never reads half a file.
 

@@ -1,42 +1,28 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { Session, Sessions } from "./session";
+import type { Sessions } from "./session";
 import { readSessions } from "./session-store";
 
 const CLAUDE_SESSION_REGISTRY = path.join(os.homedir(), ".claude", "sessions");
 
-type RegistryEntry = { pid: number; sessionId: string; startedAt: number };
-
-export type LiveProcesses = Map<string, number>;
+type RegistryEntry = { pid: number; sessionId: string };
 
 export function readLiveSessions(): Sessions {
-	return onlyLive(readSessions(), liveProcesses(CLAUDE_SESSION_REGISTRY, isRunning));
+	return onlyLive(readSessions(), liveSessionIds(CLAUDE_SESSION_REGISTRY, isRunning));
 }
 
-export function liveProcesses(registryDir: string, isRunning: (pid: number) => boolean): LiveProcesses | undefined {
+export function liveSessionIds(registryDir: string, isRunning: (pid: number) => boolean): Set<string> | undefined {
 	if (!fs.existsSync(registryDir)) return undefined;
 
 	const running = registryEntriesIn(registryDir).filter(({ pid }) => isRunning(pid));
-	return new Map(running.map(({ sessionId, startedAt }) => [sessionId, startedAt]));
+	return new Set(running.map(({ sessionId }) => sessionId));
 }
 
-export function onlyLive(sessions: Sessions, live: LiveProcesses | undefined): Sessions {
-	if (!live) return sessions;
+export function onlyLive(sessions: Sessions, liveIds: Set<string> | undefined): Sessions {
+	if (!liveIds) return sessions;
 
-	return Object.fromEntries(
-		Object.entries(sessions).flatMap(([sessionId, session]) => {
-			const processStartedAt = live.get(sessionId);
-			return processStartedAt === undefined ? [] : [[sessionId, withoutWaitingFromBefore(processStartedAt, session)]];
-		}),
-	);
-}
-
-function withoutWaitingFromBefore(processStartedAt: number, session: Session): Session {
-	if (!session.waiting || session.waiting.since >= processStartedAt) return session;
-
-	const { waiting, ...current } = session;
-	return current;
+	return Object.fromEntries(Object.entries(sessions).filter(([sessionId]) => liveIds.has(sessionId)));
 }
 
 function registryEntriesIn(registryDir: string): RegistryEntry[] {
