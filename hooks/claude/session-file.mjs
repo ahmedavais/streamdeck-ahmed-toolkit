@@ -9,29 +9,11 @@ export function startTurn(sessionsDir, sessionId, now, hostApp) {
 }
 
 export function endTurn(sessionsDir, sessionId, now) {
-	updateSession(sessionsDir, sessionId, (session) => ({ ...withoutWaiting(session), turnEndedAt: now }));
-}
-
-export function startWaiting(sessionsDir, sessionId, reason, now) {
-	updateSession(sessionsDir, sessionId, (session) =>
-		answeredBefore(session, now) ? session : { ...session, waiting: { for: reason, since: now } },
-	);
-}
-
-export function stopWaiting(sessionsDir, sessionId, now) {
-	updateSession(sessionsDir, sessionId, (session) => ({ ...withoutWaiting(session), toolsFinishedAt: now }));
+	updateSession(sessionsDir, sessionId, (session) => ({ ...session, turnEndedAt: now }));
 }
 
 export function endSession(sessionsDir, sessionId) {
 	fs.rmSync(sessionFile(sessionsDir, sessionId), { force: true });
-}
-
-function answeredBefore({ toolsFinishedAt }, notifiedAt) {
-	return toolsFinishedAt !== undefined && toolsFinishedAt > notifiedAt;
-}
-
-function withoutWaiting({ waiting, ...session }) {
-	return session;
 }
 
 function updateSession(sessionsDir, sessionId, change) {

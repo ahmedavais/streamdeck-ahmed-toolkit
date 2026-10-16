@@ -47,21 +47,6 @@
 					"TitleAlignment": "middle"
 				}
 			]
-		},
-		{
-			"Name": "Needs Attention",
-			"UUID": "com.ahmedavais.toolkit.claude.needs-attention",
-			"Icon": "imgs/actions/needs-attention/icon",
-			"Tooltip": "Lights up when a Claude Code session waits for your approval or reply.",
-			"Controllers": [
-				"Keypad"
-			],
-			"States": [
-				{
-					"Image": "imgs/actions/needs-attention/key",
-					"TitleAlignment": "middle"
-				}
-			]
 		}
 	],
 	"Category": "Ahmed's Toolkit",

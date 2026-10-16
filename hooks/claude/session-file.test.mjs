@@ -6,7 +6,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { readSessions, SESSIONS_DIR as PLUGIN_SESSIONS_DIR } from "../../src/claude/sessions/session-store.ts";
-import { endSession, endTurn, SESSIONS_DIR, startTurn, startWaiting, stopWaiting } from "./session-file.mjs";
+import { endSession, endTurn, SESSIONS_DIR, startTurn } from "./session-file.mjs";
 
 test("starting a turn records when it started", () => {
 	const sessionsDir = temporarySessionsDir();
@@ -45,86 +45,6 @@ test("starting a new turn replaces the previous turn's timings", () => {
 	const sessionsDir = temporarySessionsDir();
 	startTurn(sessionsDir, "session-a", 1_000);
 	endTurn(sessionsDir, "session-a", 4_000);
-
-	startTurn(sessionsDir, "session-a", 9_000);
-
-	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 9_000 } });
-});
-
-test("a permission prompt records that the session waits for permission, keeping its turn", () => {
-	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
-
-	startWaiting(sessionsDir, "session-a", "permission", 3_000);
-
-	assert.deepEqual(sessionFiles(sessionsDir), {
-		"session-a.json": { turnStartedAt: 1_000, waiting: { for: "permission", since: 3_000 } },
-	});
-});
-
-test("waiting in an unknown session does nothing", () => {
-	const sessionsDir = temporarySessionsDir();
-
-	startWaiting(sessionsDir, "never-started", "permission", 3_000);
-
-	assert.deepEqual(sessionFiles(sessionsDir), {});
-});
-
-test("tools finishing clears the waiting", () => {
-	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
-	startWaiting(sessionsDir, "session-a", "permission", 3_000);
-
-	stopWaiting(sessionsDir, "session-a", 4_000);
-
-	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, toolsFinishedAt: 4_000 } });
-});
-
-test("a notification sent before the tools finished doesn't mark the session waiting", () => {
-	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
-	stopWaiting(sessionsDir, "session-a", 5_000);
-
-	startWaiting(sessionsDir, "session-a", "permission", 4_000);
-
-	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, toolsFinishedAt: 5_000 } });
-});
-
-test("a notification sent after the tools finished marks the session waiting", () => {
-	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
-	stopWaiting(sessionsDir, "session-a", 5_000);
-
-	startWaiting(sessionsDir, "session-a", "permission", 6_000);
-
-	assert.deepEqual(sessionFiles(sessionsDir), {
-		"session-a.json": { turnStartedAt: 1_000, toolsFinishedAt: 5_000, waiting: { for: "permission", since: 6_000 } },
-	});
-});
-
-test("tools finishing in an unknown session does nothing", () => {
-	const sessionsDir = temporarySessionsDir();
-
-	stopWaiting(sessionsDir, "never-started", 4_000);
-
-	assert.deepEqual(sessionFiles(sessionsDir), {});
-});
-
-test("ending a turn clears the waiting", () => {
-	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
-	startWaiting(sessionsDir, "session-a", "permission", 3_000);
-
-	endTurn(sessionsDir, "session-a", 4_000);
-
-	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, turnEndedAt: 4_000 } });
-});
-
-test("starting a turn clears the waiting", () => {
-	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
-	endTurn(sessionsDir, "session-a", 4_000);
-	startWaiting(sessionsDir, "session-a", "input", 5_000);
 
 	startTurn(sessionsDir, "session-a", 9_000);
 
@@ -172,17 +92,6 @@ test("the plugin reads the turns the hooks write", () => {
 	assert.deepEqual(readSessions(sessionsDir), {
 		"session-a": { turnStartedAt: 1_000, turnEndedAt: 4_000 },
 		"session-b": { turnStartedAt: 2_000 },
-	});
-});
-
-test("the plugin reads the waiting the hooks write", () => {
-	const sessionsDir = temporarySessionsDir();
-
-	startTurn(sessionsDir, "session-a", 1_000);
-	startWaiting(sessionsDir, "session-a", "permission", 3_000);
-
-	assert.deepEqual(readSessions(sessionsDir), {
-		"session-a": { turnStartedAt: 1_000, waiting: { for: "permission", since: 3_000 } },
 	});
 });
 
