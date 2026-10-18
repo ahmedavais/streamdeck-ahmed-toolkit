@@ -4,10 +4,6 @@ export type ServerStatus = { name: string; health: ServerHealth };
 
 const STATUS_SEPARATOR = " - ";
 
-// `claude mcp list` has no machine-readable output flag as of Claude Code 2.1.277, so these
-// statuses are read from its human-readable text. The status symbols and wording are not a
-// published contract and may change between Claude Code versions; if they do, an unrecognized
-// marker parses as "unknown" (surfaced on the key as "?") and these phrases need updating.
 const HEALTH_BY_PHRASE: ReadonlyArray<[string, ServerHealth]> = [
 	["connected", "connected"],
 	["needs authentication", "needs-authentication"],
