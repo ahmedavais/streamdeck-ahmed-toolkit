@@ -11,7 +11,7 @@ import { endSession, endTurn, SESSIONS_DIR, startTurn } from "./session-file.mjs
 test("starting a turn records when it started", () => {
 	const sessionsDir = temporarySessionsDir();
 
-	startTurn(sessionsDir, "session-a", 1_000);
+	startTurn(sessionsDir, "session-a", { startedAt: 1_000 });
 
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000 } });
 });
@@ -19,14 +19,14 @@ test("starting a turn records when it started", () => {
 test("starting a turn records which app the session runs in", () => {
 	const sessionsDir = temporarySessionsDir();
 
-	startTurn(sessionsDir, "session-a", 1_000, "com.anthropic.claudefordesktop");
+	startTurn(sessionsDir, "session-a", { startedAt: 1_000, hostApp: "com.anthropic.claudefordesktop" });
 
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 1_000, hostApp: "com.anthropic.claudefordesktop" } });
 });
 
 test("ending a turn records when it ended", () => {
 	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
+	startTurn(sessionsDir, "session-a", { startedAt: 1_000 });
 
 	endTurn(sessionsDir, "session-a", 4_000);
 
@@ -43,18 +43,18 @@ test("ending a turn for an unknown session does nothing", () => {
 
 test("starting a new turn replaces the previous turn's timings", () => {
 	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
+	startTurn(sessionsDir, "session-a", { startedAt: 1_000 });
 	endTurn(sessionsDir, "session-a", 4_000);
 
-	startTurn(sessionsDir, "session-a", 9_000);
+	startTurn(sessionsDir, "session-a", { startedAt: 9_000 });
 
 	assert.deepEqual(sessionFiles(sessionsDir), { "session-a.json": { turnStartedAt: 9_000 } });
 });
 
 test("ending a session removes its file", () => {
 	const sessionsDir = temporarySessionsDir();
-	startTurn(sessionsDir, "session-a", 1_000);
-	startTurn(sessionsDir, "session-b", 2_000);
+	startTurn(sessionsDir, "session-a", { startedAt: 1_000 });
+	startTurn(sessionsDir, "session-b", { startedAt: 2_000 });
 
 	endSession(sessionsDir, "session-a");
 
@@ -72,7 +72,7 @@ test("ending an unknown session does nothing", () => {
 test("leaves no draft files behind", () => {
 	const sessionsDir = temporarySessionsDir();
 
-	startTurn(sessionsDir, "session-a", 1_000);
+	startTurn(sessionsDir, "session-a", { startedAt: 1_000 });
 	endTurn(sessionsDir, "session-a", 4_000);
 
 	assert.deepEqual(fs.readdirSync(sessionsDir), ["session-a.json"]);
@@ -85,9 +85,9 @@ test("the hooks write where the plugin reads", () => {
 test("the plugin reads the turns the hooks write", () => {
 	const sessionsDir = temporarySessionsDir();
 
-	startTurn(sessionsDir, "session-a", 1_000);
+	startTurn(sessionsDir, "session-a", { startedAt: 1_000 });
 	endTurn(sessionsDir, "session-a", 4_000);
-	startTurn(sessionsDir, "session-b", 2_000);
+	startTurn(sessionsDir, "session-b", { startedAt: 2_000 });
 
 	assert.deepEqual(readSessions(sessionsDir), {
 		"session-a": { turnStartedAt: 1_000, turnEndedAt: 4_000 },
@@ -98,7 +98,7 @@ test("the plugin reads the turns the hooks write", () => {
 test("the plugin reads the app the hooks write", () => {
 	const sessionsDir = temporarySessionsDir();
 
-	startTurn(sessionsDir, "session-a", 1_000, "com.googlecode.iterm2");
+	startTurn(sessionsDir, "session-a", { startedAt: 1_000, hostApp: "com.googlecode.iterm2" });
 
 	assert.deepEqual(readSessions(sessionsDir), { "session-a": { turnStartedAt: 1_000, hostApp: "com.googlecode.iterm2" } });
 });

@@ -4,8 +4,8 @@ import path from "node:path";
 
 export const SESSIONS_DIR = path.join(os.homedir(), ".streamdeck-ahmed-toolkit", "sessions");
 
-export function startTurn(sessionsDir, sessionId, now, hostApp) {
-	writeSession(sessionsDir, sessionId, { turnStartedAt: now, hostApp });
+export function startTurn(sessionsDir, sessionId, { startedAt, hostApp }) {
+	writeSession(sessionsDir, sessionId, { turnStartedAt: startedAt, hostApp });
 }
 
 export function endTurn(sessionsDir, sessionId, now) {
