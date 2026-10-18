@@ -1,4 +1,4 @@
-import { SingletonAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
+import { SingletonAction, type WillAppearEvent } from "@elgato/streamdeck";
 import { Poller, type KeyDisplay, type PollingOptions } from "./poller";
 
 export type PollingKeySettings = Omit<PollingOptions, "check" | "show">;
@@ -14,15 +14,15 @@ export abstract class PollingKeyAction extends SingletonAction {
 	protected abstract check(): Promise<KeyDisplay | undefined>;
 
 	override onWillAppear(ev: WillAppearEvent): void {
-		if (ev.action.isKey()) this.poller.keyAppeared();
+		if (ev.action.isKey()) void this.poller.keyAppeared();
 	}
 
-	override onWillDisappear(_ev: WillDisappearEvent): void {
+	override onWillDisappear(): void {
 		if (this.nothingVisible()) this.poller.lastKeyGone();
 	}
 
 	protected pollNow(): void {
-		this.poller.pollNow();
+		void this.poller.pollNow();
 	}
 
 	private nothingVisible(): boolean {
@@ -33,8 +33,8 @@ export abstract class PollingKeyAction extends SingletonAction {
 		for (const visibleAction of this.actions) {
 			if (!visibleAction.isKey()) continue;
 
-			if (title !== undefined) visibleAction.setTitle(title);
-			visibleAction.setImage(image);
+			if (title !== undefined) void visibleAction.setTitle(title);
+			void visibleAction.setImage(image);
 		}
 	}
 }

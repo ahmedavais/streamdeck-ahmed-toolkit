@@ -37,7 +37,7 @@ function registryEntriesIn(registryDir: string): RegistryEntry[] {
 
 function readEntry(file: string): RegistryEntry | undefined {
 	try {
-		return JSON.parse(fs.readFileSync(file, "utf8"));
+		return JSON.parse(fs.readFileSync(file, "utf8")) as RegistryEntry;
 	} catch {
 		return undefined;
 	}

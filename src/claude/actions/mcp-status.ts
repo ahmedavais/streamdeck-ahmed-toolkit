@@ -33,7 +33,7 @@ export class McpStatus extends PollingKeyAction {
 	}
 
 	override onKeyDown(ev: KeyDownEvent): void {
-		if (ev.action.isKey()) ev.action.setTitle(CHECKING_TITLE);
+		if (ev.action.isKey()) void ev.action.setTitle(CHECKING_TITLE);
 
 		this.pollNow();
 	}

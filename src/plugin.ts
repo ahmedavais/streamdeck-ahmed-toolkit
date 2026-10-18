@@ -6,4 +6,4 @@ import { UsageGauge } from "./claude/actions/usage-gauge";
 streamDeck.actions.registerAction(new UsageGauge());
 streamDeck.actions.registerAction(new ActiveTask());
 streamDeck.actions.registerAction(new McpStatus());
-streamDeck.connect();
+void streamDeck.connect();

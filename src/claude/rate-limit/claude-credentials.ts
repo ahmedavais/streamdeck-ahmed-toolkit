@@ -2,6 +2,8 @@ import { Keychain, type NulledKeychainItem } from "../../infrastructure/keychain
 
 export type NulledCredentials = { accessToken: string } | { missing: true };
 
+type KeychainCredentials = { claudeAiOauth?: { accessToken?: unknown } };
+
 const KEYCHAIN_SERVICE = "Claude Code-credentials";
 
 export class ClaudeCredentials {
@@ -36,7 +38,7 @@ export class ClaudeCredentials {
 
 function accessTokenIn(entry: string): unknown {
 	try {
-		return JSON.parse(entry)?.claudeAiOauth?.accessToken;
+		return (JSON.parse(entry) as KeychainCredentials | null)?.claudeAiOauth?.accessToken;
 	} catch {
 		return undefined;
 	}
