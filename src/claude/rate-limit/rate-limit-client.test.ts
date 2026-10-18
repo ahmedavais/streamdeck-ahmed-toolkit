@@ -109,11 +109,17 @@ test("a nulled client answers configured readings in order", async () => {
 	assert.deepEqual(readings, [{ usage: 0.42 }, undefined, { usage: 0.5 }]);
 });
 
+type SnapshotSetup = {
+	credentials?: NulledCredentials | NulledCredentials[];
+	httpResponses?: NulledHttpResponse | NulledHttpResponse[];
+	probes?: number;
+};
+
 async function fetchSnapshot({
-	credentials = { accessToken: "irrelevant token" } as NulledCredentials | NulledCredentials[],
-	httpResponses = IRRELEVANT_RESPONSE as NulledHttpResponse | NulledHttpResponse[],
+	credentials = { accessToken: "irrelevant token" },
+	httpResponses = IRRELEVANT_RESPONSE,
 	probes = 1,
-} = {}) {
+}: SnapshotSetup = {}) {
 	const http = HttpClient.createNull(httpResponses);
 	const httpRequests = http.trackRequests();
 	const log = Log.createNull();

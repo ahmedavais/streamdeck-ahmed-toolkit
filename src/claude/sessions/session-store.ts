@@ -22,7 +22,7 @@ function sessionFilesIn(sessionsDir: string): string[] {
 
 function readSession(file: string): Session | undefined {
 	try {
-		return JSON.parse(fs.readFileSync(file, "utf8"));
+		return JSON.parse(fs.readFileSync(file, "utf8")) as Session;
 	} catch {
 		return undefined;
 	}

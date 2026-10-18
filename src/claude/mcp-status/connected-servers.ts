@@ -7,7 +7,7 @@ export const CONNECTED_SERVERS_FILE = path.join(os.homedir(), ".streamdeck-ahmed
 
 export function readConnectedServers(file = CONNECTED_SERVERS_FILE): Set<string> {
 	try {
-		return new Set(JSON.parse(fs.readFileSync(file, "utf8")));
+		return new Set(JSON.parse(fs.readFileSync(file, "utf8")) as string[]);
 	} catch {
 		return new Set();
 	}
