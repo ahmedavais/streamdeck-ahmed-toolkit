@@ -6,6 +6,9 @@ on:
   pull_request:
 
 jobs:
+  duplication:
+    uses: ahmedavais/karkhana/.github/workflows/duplication.yml@main
+
   verify:
     runs-on: macos-latest
     steps:
