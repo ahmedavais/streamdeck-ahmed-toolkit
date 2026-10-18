@@ -61,9 +61,9 @@ Each action extends PollingKeyAction: one Poller per action checks on an interva
 skips a check while the previous one is running, and paints the result on every visible key.
 ```
 
-The Usage Gauge reads the rate-limit headers from a real API request, so it sends one tiny Haiku request per minute. That request counts against the same limits it measures. The headers it reads are undocumented and may change.
+The Usage Gauge reads the rate-limit headers from a real API request, so it sends one tiny Haiku request per minute. That request counts against the same limits it measures. The headers it reads, the `anthropic-ratelimit-unified-*` family, are undocumented and may change.
 
-MCP Status parses the human-readable output of `claude mcp list`, which has no machine-readable format. The plugin counts a status it doesn't recognize as "?" and colors the key yellow.
+MCP Status parses the human-readable output of `claude mcp list`, which has no machine-readable format. Its wording was last checked against Claude Code 2.1.277 and isn't a published contract. The plugin counts a status it doesn't recognize as "?" and colors the key yellow; when that happens after a Claude Code update, the phrases in `src/claude/mcp-status/server-status.ts` need updating.
 
 ## Development
 
