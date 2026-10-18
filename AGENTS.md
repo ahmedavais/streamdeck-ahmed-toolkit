@@ -10,7 +10,7 @@ A Stream Deck plugin for macOS whose keys show live Claude Code status: usage, t
   any change done.
 - Duplication: the `duplication` job in `.github/workflows/ci.yml`, shared from
   [karkhana](https://github.com/ahmedavais/karkhana), fails when a change adds code duplicated elsewhere in the repo,
-  tests included. `.jscpd.json` lists the lock and generated files it skips.
+  tests included. `.jscpd.json` skips `package-lock.json`.
 - Adversarial review: `.github/workflows/adversarial-review.yml` has Claude Code review every pull request with the
   shared workflow and brief from [karkhana](https://github.com/ahmedavais/karkhana). Comments only. The reviewer takes
   this repo's checks and conventions from this file, so keep them current here.
