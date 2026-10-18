@@ -5,9 +5,9 @@ A Stream Deck plugin for macOS whose keys show live Claude Code status: usage, t
 
 ## Checks
 
-- CI (`.github/workflows/ci.yml`) runs on every pull request and push to main, on macOS: `npx tsc --noEmit`, `npm run
-  lint`, `npm test`, `npm run build` and `npx streamdeck validate com.ahmedavais.toolkit.sdPlugin`. Run them before
-  calling any change done.
+- CI (`.github/workflows/ci.yml`) runs on every pull request and push to main, on macOS: `npx tsc --noEmit`,
+  `npm run lint`, `npm test`, `npm run build` and `npx streamdeck validate com.ahmedavais.toolkit.sdPlugin`. Run them
+  before calling any change done.
 - Lint: ESLint with type-aware TypeScript rules (`eslint.config.js`). Lint only, no formatter. The structural limits
   come from [karkhana](https://github.com/ahmedavais/karkhana)'s `karkhana/eslint-limits`: more than 3 parameters,
   complexity over 10 and nesting deeper than 4 are errors, a function over 30 lines is a warning. `package-lock.json`
