@@ -11,12 +11,20 @@ A Stream Deck plugin for macOS whose keys show live Claude Code status: usage, t
 - Lint: ESLint with type-aware TypeScript rules (`eslint.config.js`). Lint only, no formatter. The structural limits
   come from [karkhana](https://github.com/ahmedavais/karkhana)'s `karkhana/eslint-limits`: more than 3 parameters,
   complexity over 10 and nesting deeper than 4 are errors, a function over 30 lines is a warning. `package-lock.json`
-  pins the karkhana commit; `npm update karkhana` takes a newer one. node:test's `test` and `describe` may float;
-  `require-await` is off because `async` without `await` is deliberate here: it keeps an async interface, and a stand-in
-  that throws must reject the way the real call does.
+  pins the karkhana commit; the weekly lock file refresh (below) or `npm install --save-dev github:ahmedavais/karkhana`
+  takes a newer one, while `npm update karkhana` leaves it. node:test's `test` and `describe` may float; `require-await`
+  is off because `async` without `await` is deliberate here: it keeps an async interface, and a stand-in that throws
+  must reject the way the real call does.
 - Duplication: the `duplication` job in `.github/workflows/ci.yml`, shared from
   [karkhana](https://github.com/ahmedavais/karkhana), fails when a change adds code duplicated elsewhere in the repo,
   tests included. `.jscpd.json` skips `package-lock.json`.
+- Dependency updates: `renovate.json` follows the shared Renovate policy in
+  [karkhana](https://github.com/ahmedavais/karkhana). Patch and minor updates arrive as one pull request on Mondays
+  and merge themselves once every check passes. The lock file refresh, which also moves the karkhana pin, and any
+  major arrive the same day and stay open, assigned to Ahmed. When CI fails on one, the `failed-update-alarm` job in
+  `.github/workflows/ci.yml` assigns it to Ahmed; its `needs` lists every other pull request job, so add a new job
+  there too. The adversarial review skips a Renovate pull request only when it changes nothing but dependency
+  manifests and lock files.
 - Adversarial review: `.github/workflows/adversarial-review.yml` has Claude Code review every pull request with the
   shared workflow and brief from [karkhana](https://github.com/ahmedavais/karkhana). Comments only. The reviewer takes
   this repo's checks and conventions from this file, so keep them current here.

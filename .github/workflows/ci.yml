@@ -23,3 +23,10 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx streamdeck validate com.ahmedavais.toolkit.sdPlugin
+
+  failed-update-alarm:
+    needs: [duplication, verify]
+    if: failure()
+    permissions:
+      pull-requests: write
+    uses: ahmedavais/karkhana/.github/workflows/failed-update-alarm.yml@main
