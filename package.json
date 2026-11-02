@@ -28,6 +28,6 @@
 		"typescript-eslint": "8.71.0"
 	},
 	"dependencies": {
-		"@elgato/streamdeck": "^2.0.1"
+		"@elgato/streamdeck": "^3.0.0"
 	}
 }
