@@ -24,7 +24,8 @@ A Stream Deck plugin for macOS whose keys show live Claude Code status: usage, t
   major arrive the same day and stay open, assigned to Ahmed. When CI fails on one, the `failed-update-alarm` job in
   `.github/workflows/ci.yml` assigns it to Ahmed; its `needs` lists every other pull request job, so add a new job
   there too. The adversarial review skips a Renovate pull request only when it changes nothing but dependency
-  manifests and lock files.
+  manifests and lock files. `renovate.json` holds TypeScript below 6.1, the newest typescript-eslint supports; lift
+  the cap once typescript-eslint supports TypeScript 7.
 - Adversarial review: `.github/workflows/adversarial-review.yml` has Claude Code review every pull request with the
   shared workflow and brief from [karkhana](https://github.com/ahmedavais/karkhana). Comments only. The reviewer takes
   this repo's checks and conventions from this file, so keep them current here.
