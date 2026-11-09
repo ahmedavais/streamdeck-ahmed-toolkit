@@ -32,8 +32,9 @@ export class CommandRunner {
 		return this.commands.trackOutput();
 	}
 
-	async run(command: string, args: string[], { timeoutMs, pathPrefix = [] }: RunOptions): Promise<CommandResult> {
-		this.commands.emit({ command, args, timeoutMs });
+	async run(command: string, args: string[], options: RunOptions): Promise<CommandResult> {
+		this.commands.emit({ command, args, ...options });
+		const { timeoutMs, pathPrefix = [] } = options;
 		try {
 			const { stdout } = await this.runProcess(command, args, { encoding: "utf8", timeout: timeoutMs, env: environmentWith(pathPrefix) });
 			return { stdout, exitCode: 0, timedOut: false };

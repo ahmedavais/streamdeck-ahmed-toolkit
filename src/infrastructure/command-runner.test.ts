@@ -103,3 +103,12 @@ test("tracks the commands it runs", async () => {
 
 	assert.deepEqual(commands.data, [{ command: "/usr/local/bin/claude", args: ["mcp", "list"], timeoutMs: 40_000 }]);
 });
+
+test("tracks the directories each command asked to have ahead on PATH", async () => {
+	const runner = CommandRunner.createNull();
+	const commands = runner.trackCommands();
+
+	await runner.run("claude", ["mcp", "list"], { timeoutMs: 40_000, pathPrefix: ["/opt/homebrew/bin"] });
+
+	assert.deepEqual(commands.data, [{ command: "claude", args: ["mcp", "list"], timeoutMs: 40_000, pathPrefix: ["/opt/homebrew/bin"] }]);
+});
