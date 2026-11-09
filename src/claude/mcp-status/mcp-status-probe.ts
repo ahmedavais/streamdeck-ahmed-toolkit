@@ -15,7 +15,7 @@ export class McpStatusProbe {
 	) {}
 
 	async serverStatuses(): Promise<ServerStatus[]> {
-		const listing = await this.runner.run(this.locateCli(), ["mcp", "list"], PROBE_TIMEOUT_MS);
+		const listing = await this.runner.run(this.locateCli(), ["mcp", "list"], { timeoutMs: PROBE_TIMEOUT_MS });
 		const statuses = parseServerStatuses(listing.stdout);
 		if (listing.exitCode !== 0 && statuses.length === 0) throw new Error(emptyListingFailure(listing));
 
