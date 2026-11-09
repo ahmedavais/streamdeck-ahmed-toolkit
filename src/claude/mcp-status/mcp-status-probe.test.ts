@@ -5,10 +5,17 @@ import { McpStatusProbe } from "./mcp-status-probe";
 
 const IRRELEVANT_LISTING: NulledCommandResult = { stdout: "", exitCode: 0, timedOut: false };
 
-test("runs `mcp list` on the located claude CLI with a 40s timeout", async () => {
-	const { commands } = await probe({ cli: "/Users/someone/.local/bin/claude" });
+test("runs `mcp list` on the located claude CLI with a 40s timeout, with your tool directories ahead on PATH", async () => {
+	const { commands } = await probe({ cli: "/Users/someone/.local/bin/claude", tools: ["/Users/someone/.local/bin", "/opt/homebrew/bin"] });
 
-	assert.deepEqual(commands.data, [{ command: "/Users/someone/.local/bin/claude", args: ["mcp", "list"], timeoutMs: 40_000 }]);
+	assert.deepEqual(commands.data, [
+		{
+			command: "/Users/someone/.local/bin/claude",
+			args: ["mcp", "list"],
+			timeoutMs: 40_000,
+			pathPrefix: ["/Users/someone/.local/bin", "/opt/homebrew/bin"],
+		},
+	]);
 });
 
 const TWO_SERVERS = [
@@ -61,9 +68,9 @@ test("fails clearly when the listing times out after printing only its header", 
 	});
 });
 
-async function probe({ cli = "/irrelevant/claude", listing = IRRELEVANT_LISTING } = {}) {
+async function probe({ cli = "/irrelevant/claude", listing = IRRELEVANT_LISTING, tools = ["/irrelevant/bin"] } = {}) {
 	const runner = CommandRunner.createNull(listing);
 	const commands = runner.trackCommands();
-	const statuses = await new McpStatusProbe(runner, () => cli).serverStatuses();
+	const statuses = await new McpStatusProbe(runner, () => cli, tools).serverStatuses();
 	return { statuses, commands };
 }
