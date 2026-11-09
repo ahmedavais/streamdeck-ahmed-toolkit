@@ -14,7 +14,7 @@ export class SessionSwitcher {
 	async bringForward({ hostApp }: Session): Promise<void> {
 		if (!hostApp) return;
 
-		const result = await this.runner.run(OPEN, ["-b", hostApp], SWITCH_TIMEOUT_MS);
+		const result = await this.runner.run(OPEN, ["-b", hostApp], { timeoutMs: SWITCH_TIMEOUT_MS });
 		if (result.exitCode !== 0) throw new Error(`Could not bring ${hostApp} to the front: ${openFailure(result)}`);
 	}
 }

@@ -1,21 +1,27 @@
+import os from "node:os";
 import { CommandRunner, type CommandResult } from "../../infrastructure/command-runner";
 import { claudeCli } from "../claude-cli";
+import { toolDirectories } from "../tool-directories";
 import { parseServerStatuses, type ServerStatus } from "./server-status";
 
 const PROBE_TIMEOUT_MS = 40 * 1000;
 
 export class McpStatusProbe {
 	static create(): McpStatusProbe {
-		return new McpStatusProbe(CommandRunner.create(), claudeCli);
+		return new McpStatusProbe(CommandRunner.create(), claudeCli, toolDirectories(os.homedir()));
 	}
 
 	constructor(
 		private readonly runner: CommandRunner,
 		private readonly locateCli: () => string,
+		private readonly toolDirectories: string[],
 	) {}
 
 	async serverStatuses(): Promise<ServerStatus[]> {
-		const listing = await this.runner.run(this.locateCli(), ["mcp", "list"], PROBE_TIMEOUT_MS);
+		const listing = await this.runner.run(this.locateCli(), ["mcp", "list"], {
+			timeoutMs: PROBE_TIMEOUT_MS,
+			pathPrefix: this.toolDirectories,
+		});
 		const statuses = parseServerStatuses(listing.stdout);
 		if (listing.exitCode !== 0 && statuses.length === 0) throw new Error(emptyListingFailure(listing));
 

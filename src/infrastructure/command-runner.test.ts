@@ -10,7 +10,7 @@ const IRRELEVANT_TIMEOUT_MS = 10_000;
 test("returns the output of a command that succeeds", async () => {
 	const runner = CommandRunner.create();
 
-	const result = await runner.run(process.execPath, ["-e", "process.stdout.write('all good')"], IRRELEVANT_TIMEOUT_MS);
+	const result = await runner.run(process.execPath, ["-e", "process.stdout.write('all good')"], { timeoutMs: IRRELEVANT_TIMEOUT_MS });
 
 	assert.deepEqual(result, { stdout: "all good", exitCode: 0, timedOut: false });
 });
@@ -18,7 +18,7 @@ test("returns the output of a command that succeeds", async () => {
 test("returns the output and exit code of a command that fails", async () => {
 	const runner = CommandRunner.create();
 
-	const result = await runner.run(process.execPath, ["-e", "process.stdout.write('partial'); process.exit(3)"], IRRELEVANT_TIMEOUT_MS);
+	const result = await runner.run(process.execPath, ["-e", "process.stdout.write('partial'); process.exit(3)"], { timeoutMs: IRRELEVANT_TIMEOUT_MS });
 
 	assert.deepEqual(result, { stdout: "partial", exitCode: 3, timedOut: false });
 });
@@ -26,7 +26,7 @@ test("returns the output and exit code of a command that fails", async () => {
 test("returns the partial output of a command that runs past its timeout", async () => {
 	const runner = CommandRunner.create();
 
-	const result = await runner.run(process.execPath, ["-e", "process.stdout.write('slow start'); setTimeout(() => {}, 10_000)"], 300);
+	const result = await runner.run(process.execPath, ["-e", "process.stdout.write('slow start'); setTimeout(() => {}, 10_000)"], { timeoutMs: 300 });
 
 	assert.deepEqual(result, { stdout: "slow start", exitCode: null, timedOut: true });
 });
@@ -34,16 +34,27 @@ test("returns the partial output of a command that runs past its timeout", async
 test("fails, naming the command, when it can't be started", async () => {
 	const runner = CommandRunner.create();
 
-	await assert.rejects(runner.run("/no/such/command", [], IRRELEVANT_TIMEOUT_MS), {
+	await assert.rejects(runner.run("/no/such/command", [], { timeoutMs: IRRELEVANT_TIMEOUT_MS }), {
 		message: "Could not run /no/such/command: spawn /no/such/command ENOENT",
 	});
+});
+
+test("puts the given directories ahead of the inherited PATH", async () => {
+	const runner = CommandRunner.create();
+
+	const result = await runner.run(process.execPath, ["-e", "process.stdout.write(process.env.PATH)"], {
+		timeoutMs: IRRELEVANT_TIMEOUT_MS,
+		pathPrefix: ["/first/tools", "/second/tools"],
+	});
+
+	assert.equal(result.stdout, `/first/tools:/second/tools:${process.env.PATH}`);
 });
 
 test("a nulled runner starts no processes", async () => {
 	const runner = CommandRunner.createNull();
 	const marker = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-runner-")), "ran");
 
-	await runner.run(process.execPath, ["-e", `require("fs").writeFileSync(${JSON.stringify(marker)}, "")`], IRRELEVANT_TIMEOUT_MS);
+	await runner.run(process.execPath, ["-e", `require("fs").writeFileSync(${JSON.stringify(marker)}, "")`], { timeoutMs: IRRELEVANT_TIMEOUT_MS });
 
 	assert.equal(fs.existsSync(marker), false);
 });
@@ -51,7 +62,7 @@ test("a nulled runner starts no processes", async () => {
 test("a nulled runner answers with an obviously fake default", async () => {
 	const runner = CommandRunner.createNull();
 
-	const result = await runner.run("anything", [], IRRELEVANT_TIMEOUT_MS);
+	const result = await runner.run("anything", [], { timeoutMs: IRRELEVANT_TIMEOUT_MS });
 
 	assert.deepEqual(result, { stdout: "Nulled CommandRunner default output", exitCode: 0, timedOut: false });
 });
@@ -64,9 +75,9 @@ test("a nulled runner answers configured results in order", async () => {
 	]);
 
 	const results = [
-		await runner.run("anything", [], IRRELEVANT_TIMEOUT_MS),
-		await runner.run("anything", [], IRRELEVANT_TIMEOUT_MS),
-		await runner.run("anything", [], IRRELEVANT_TIMEOUT_MS),
+		await runner.run("anything", [], { timeoutMs: IRRELEVANT_TIMEOUT_MS }),
+		await runner.run("anything", [], { timeoutMs: IRRELEVANT_TIMEOUT_MS }),
+		await runner.run("anything", [], { timeoutMs: IRRELEVANT_TIMEOUT_MS }),
 	];
 
 	assert.deepEqual(results, [
@@ -79,7 +90,7 @@ test("a nulled runner answers configured results in order", async () => {
 test("a nulled runner can fail to start a command", async () => {
 	const runner = CommandRunner.createNull({ cannotStart: true });
 
-	await assert.rejects(runner.run("/usr/local/bin/claude", [], IRRELEVANT_TIMEOUT_MS), {
+	await assert.rejects(runner.run("/usr/local/bin/claude", [], { timeoutMs: IRRELEVANT_TIMEOUT_MS }), {
 		message: "Could not run /usr/local/bin/claude: spawn /usr/local/bin/claude ENOENT",
 	});
 });
@@ -88,7 +99,16 @@ test("tracks the commands it runs", async () => {
 	const runner = CommandRunner.createNull();
 	const commands = runner.trackCommands();
 
-	await runner.run("/usr/local/bin/claude", ["mcp", "list"], 40_000);
+	await runner.run("/usr/local/bin/claude", ["mcp", "list"], { timeoutMs: 40_000 });
 
 	assert.deepEqual(commands.data, [{ command: "/usr/local/bin/claude", args: ["mcp", "list"], timeoutMs: 40_000 }]);
+});
+
+test("tracks the directories each command asked to have ahead on PATH", async () => {
+	const runner = CommandRunner.createNull();
+	const commands = runner.trackCommands();
+
+	await runner.run("claude", ["mcp", "list"], { timeoutMs: 40_000, pathPrefix: ["/opt/homebrew/bin"] });
+
+	assert.deepEqual(commands.data, [{ command: "claude", args: ["mcp", "list"], timeoutMs: 40_000, pathPrefix: ["/opt/homebrew/bin"] }]);
 });
