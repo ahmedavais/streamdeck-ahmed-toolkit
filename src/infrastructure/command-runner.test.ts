@@ -39,6 +39,17 @@ test("fails, naming the command, when it can't be started", async () => {
 	});
 });
 
+test("puts the given directories ahead of the inherited PATH", async () => {
+	const runner = CommandRunner.create();
+
+	const result = await runner.run(process.execPath, ["-e", "process.stdout.write(process.env.PATH)"], {
+		timeoutMs: IRRELEVANT_TIMEOUT_MS,
+		pathPrefix: ["/first/tools", "/second/tools"],
+	});
+
+	assert.equal(result.stdout, `/first/tools:/second/tools:${process.env.PATH}`);
+});
+
 test("a nulled runner starts no processes", async () => {
 	const runner = CommandRunner.createNull();
 	const marker = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "toolkit-runner-")), "ran");
