@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { toolDirectories } from "./tool-directories";
 
 const BARE_COMMAND = "claude";
 
@@ -10,11 +11,7 @@ export function pickClaudeCli(candidates: string[], exists: (path: string) => bo
 
 export function claudeCli(): string {
 	return pickClaudeCli(
-		[
-			path.join(os.homedir(), ".local", "bin", BARE_COMMAND),
-			path.join("/opt", "homebrew", "bin", BARE_COMMAND),
-			path.join("/usr", "local", "bin", BARE_COMMAND),
-		],
+		toolDirectories(os.homedir()).map((directory) => path.join(directory, BARE_COMMAND)),
 		fs.existsSync,
 	);
 }
