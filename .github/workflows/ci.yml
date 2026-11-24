@@ -9,6 +9,9 @@ jobs:
   duplication:
     uses: ahmedavais/karkhana/.github/workflows/duplication.yml@main
 
+  downgrade-guard:
+    uses: ahmedavais/karkhana/.github/workflows/downgrade-guard.yml@main
+
   verify:
     runs-on: macos-latest
     steps:
@@ -25,7 +28,7 @@ jobs:
       - run: npx streamdeck validate com.ahmedavais.toolkit.sdPlugin
 
   failed-update-alarm:
-    needs: [duplication, verify]
+    needs: [duplication, downgrade-guard, verify]
     if: failure()
     permissions:
       pull-requests: write
