@@ -23,7 +23,7 @@ A Stream Deck plugin for macOS whose keys show live Claude Code status: usage, t
   and merge themselves once every check passes. The lock file refresh, which also moves the karkhana pin, and any
   major arrive the same day and stay open, assigned to Ahmed. When CI fails on one, the `failed-update-alarm` job in
   `.github/workflows/ci.yml` assigns it to Ahmed; its `needs` lists every other pull request job, so add a new job
-  there too. The `downgrade-guard` job fails a Renovate pull request that lowers a direct dependency's locked version. The adversarial review skips a Renovate pull request only when it changes nothing but dependency
+  there too. The `downgrade-guard` job fails a Renovate pull request that lowers a direct dependency's locked version. Once a day, `.github/workflows/watch-stalled-updates.yml`, shared from karkhana, assigns Ahmed any Renovate pull request still open and unassigned three days after it opened, with a comment naming the checks holding it. The adversarial review skips a Renovate pull request only when it changes nothing but dependency
   manifests and lock files. `renovate.json` holds TypeScript below 6.1, the newest typescript-eslint supports; lift
   the cap once typescript-eslint supports TypeScript 7. It also holds CI's Node and `@types/node` at 24, the Node the
   plugin runs on (`Nodejs.Version` in the manifest); move all three together.
